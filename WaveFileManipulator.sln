@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveFileManipulator", "WaveFileManipulator\WaveFileManipulator.csproj", "{EAC6B965-3820-4A3A-A3C8-E7C59274A726}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveFileManipulatorTests", "WaveFileManipulatorTests\WaveFileManipulatorTests.csproj", "{DE16A18F-F111-43E1-8FCC-16C33572B7EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EAC6B965-3820-4A3A-A3C8-E7C59274A726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAC6B965-3820-4A3A-A3C8-E7C59274A726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAC6B965-3820-4A3A-A3C8-E7C59274A726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAC6B965-3820-4A3A-A3C8-E7C59274A726}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE16A18F-F111-43E1-8FCC-16C33572B7EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE16A18F-F111-43E1-8FCC-16C33572B7EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE16A18F-F111-43E1-8FCC-16C33572B7EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE16A18F-F111-43E1-8FCC-16C33572B7EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6CE900D6-E784-4CCD-A274-2C8ED9553A6C}
+	EndGlobalSection
+EndGlobal
