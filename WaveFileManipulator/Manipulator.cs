@@ -36,6 +36,7 @@ namespace WaveFileManipulator
     {
         public byte[] Reverse(string forwardsWavFilePath)
         {
+            Validator.ValidateWavFileExtension(forwardsWavFilePath);
             byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
             byte[] reversedWavFileStreamByteArray = Reverse(forwardsWavFileStreamByteArray);
 
@@ -45,6 +46,7 @@ namespace WaveFileManipulator
         public byte[] Reverse(IEnumerable<byte> forwardsWavFileByteCollection)
         {
             var forwardsArray = forwardsWavFileByteCollection.ToArray();
+            Validator.ValidateFileTypeHeader(forwardsArray);
             byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(forwardsArray, Constants.StartIndexOfAudioDataChunk);
             byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(forwardsArray, Constants.StartIndexOfAudioDataChunk);
 

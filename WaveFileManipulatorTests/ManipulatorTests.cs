@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.IO;
 using WaveFileManipulator;
 
 namespace WaveFileManipulatorTests
@@ -18,6 +20,28 @@ namespace WaveFileManipulatorTests
 
             //Assert
             Assert.AreEqual(expectedByteArray.Length, reversedByteArray.Length);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FileNotFoundException))]
+        public void NonExistentFileThrowsException()
+        {
+            //Arrange
+            var manipulator = new Manipulator();
+
+            //Act
+            manipulator.Reverse(@"C:\thisFileDoesntExist.wav");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void WrongFileExtensionThrowsException()
+        {
+            //Arrange
+            var manipulator = new Manipulator();
+
+            //Act
+            manipulator.Reverse(@"C:\thisFileDoesntExist.txt");
         }
     }
 }
