@@ -8,7 +8,7 @@ Positions Sample Value Description
 8 -11 "WAVE" File Type Header. For our purposes, it always equals "WAVE".
 12-15 "fmt " Format chunk marker. Includes trailing null
 16-19 16 Length of format data as listed above
-20-21 1 Type of format (1 is PCM) - 2 byte integer
+20-21 1 Audio format (1 is PCM) - 2 byte integer
 22-23 2 Number of Channels - 2 byte integer
 24-27 44100 Sample Rate - 32 byte integer. Common values are 44100 (CD), 48000 (DAT). Sample Rate = Number of Samples per second, or Hertz.
 28-31 176400 (Sample Rate * BitsPerSample * Channels) / 8.
@@ -21,7 +21,7 @@ Sample values are given above for a 16-bit stereo source.
 The above is correct until "data" (36 to 39).
 36 to 39 is actually "LIST".
 "data" starts at 70.
-Not sure what is between index 40 and index 69? There are 70 Bytes unaccounted for.
+Not sure what is between index 40 and index 69? There are 30 Bytes unaccounted for.
 *
 */
 

@@ -8,7 +8,39 @@ namespace WaveFileManipulatorTests
 {
     [TestClass]
     public class ManipulatorTests
-    {        
+    {
+        private byte[] PopulateForwardsWavFileByteArray(string forwardsWavFilePath)
+        {
+            byte[] forwardsWavFileStreamByteArray;
+            using (FileStream forwardsWavFileStream = new FileStream(forwardsWavFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                forwardsWavFileStreamByteArray = new byte[forwardsWavFileStream.Length];
+                forwardsWavFileStream.Read(forwardsWavFileStreamByteArray, 0, (int)forwardsWavFileStream.Length);
+            }
+
+            return forwardsWavFileStreamByteArray;
+        }
+
+        [TestMethod]
+        public void MetaDataGathererTest()
+        {
+            byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(@"C:\Users\David'\Desktop\WavFiles\out.wav");
+
+            var x = MetadataGatherer.GetMetadata(forwardsWavFileStreamByteArray);
+
+            var audioFormat = MetadataGatherer.GetAudioFormat(forwardsWavFileStreamByteArray);
+            var numOfChannels = MetadataGatherer.GetNumOfChannels(forwardsWavFileStreamByteArray);
+            var sampleRate = MetadataGatherer.GetSampleRate(forwardsWavFileStreamByteArray);
+        }
+
+        [TestMethod]
+        public void Run()
+        {
+            var manipulator = new Manipulator();
+            var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\out.wav");
+            //WriteReversedWavFileByteArrayToFile(reversedByteArray, @"C:\Users\David'\Desktop\WavFiles\16BitPCM\ReversedShort.wav");
+        }
+
         [TestMethod]
         public void ReversedFileIsSameSizeAsOriginal()
         {
@@ -17,11 +49,10 @@ namespace WaveFileManipulatorTests
             var expectedByteArray = new byte[35992];
 
             //Act
-            var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\Short.wav");
-            //var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\out.wav");
-            WriteReversedWavFileByteArrayToFile(reversedByteArray, @"C:\Users\David'\Desktop\WavFiles\16BitPCM\ReversedShort.wav");
+            var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\Short.wav");            
+            
             //Assert
-            //Assert.AreEqual(expectedByteArray.Length, reversedByteArray.Length);
+            Assert.AreEqual(expectedByteArray.Length, reversedByteArray.Length);
         }
 
         [TestMethod]

@@ -26,6 +26,7 @@ namespace WaveFileManipulator
             WaveStringValid(array);
             RiffStringValid(array);
             FmtStringValid(array);
+            LengthOfFormatDataIs16(array);
         }
 
         private static void WaveStringValid(byte[] array)
@@ -34,7 +35,7 @@ namespace WaveFileManipulator
             const string Wave = "WAVE";
             if (waveString != Wave)
             {
-                ThrowException(Wave);
+                ThrowMissingException(Wave);
             }
         }
 
@@ -44,23 +45,38 @@ namespace WaveFileManipulator
             const string Riff = "RIFF";
             if (riffString != Riff)
             {
-                ThrowException(Riff);
+                ThrowMissingException(Riff);
             }
         }
 
         private static void FmtStringValid(byte[] array)
         {
             var fmtString = MetadataGatherer.GetFmtString(array);
-            const string Fmt = "fmt";
+            const string Fmt = "fmt ";
             if (fmtString != Fmt)
             {
-                ThrowException(Fmt);
+                ThrowMissingException(Fmt);
             }
         }
 
-        private static void ThrowException(string missingString)
+        private static void LengthOfFormatDataIs16(byte[] array)
+        {
+            var lengthOfFormatData = MetadataGatherer.GetLengthOfFormatData(array);
+            const int ExpectedLengthOfFormatData = 16;
+            if (lengthOfFormatData != ExpectedLengthOfFormatData)
+            {
+                ThrowIncorrectValueException("LengthOfFormat", lengthOfFormatData);
+            }
+        }
+
+        private static void ThrowMissingException(string missingString)
         {
             throw new ArgumentException($"{missingString} is not present in file contents.");
+        }
+
+        private static void ThrowIncorrectValueException(string valueName, int incorrectValue)
+        {
+            throw new ArgumentException($"{valueName} has an incorrect value of {incorrectValue}.");
         }
     }
 }
