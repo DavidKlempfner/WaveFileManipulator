@@ -35,24 +35,37 @@ namespace WaveFileManipulator
     public class Manipulator : IManipulator
     {
         public Metadata Metadata { get; private set; }
-
-        public byte[] Reverse(string forwardsWavFilePath)
-        {            
+        private byte[] _forwardsWavFileStreamByteArray;
+        public Manipulator(string forwardsWavFilePath)
+        {
             Validator.ValidateWavFileExtension(forwardsWavFilePath);
-            byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
-            Metadata = new Metadata(forwardsWavFileStreamByteArray);
-            byte[] reversedWavFileStreamByteArray = Reverse(forwardsWavFileStreamByteArray);
-
-            return reversedWavFileStreamByteArray;
+            _forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
+            Metadata = new Metadata(_forwardsWavFileStreamByteArray);
         }
+        public Manipulator(IEnumerable<byte> forwardsWavFileByteCollection)
+        {
+            _forwardsWavFileStreamByteArray = forwardsWavFileByteCollection.ToArray();
+            Validator.ValidateFileContents(_forwardsWavFileStreamByteArray, Metadata);
+            Metadata = new Metadata(_forwardsWavFileStreamByteArray);
+        }
+
+        //public byte[] Reverse(string forwardsWavFilePath)
+        //{            
+        //    //Validator.ValidateWavFileExtension(forwardsWavFilePath);
+        //    //byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
+        //    //Metadata = new Metadata(forwardsWavFileStreamByteArray);
+        //    byte[] reversedWavFileStreamByteArray = Reverse(_forwardsWavFileStreamByteArray);
+
+        //    return reversedWavFileStreamByteArray;
+        //}
 
         public byte[] Reverse(IEnumerable<byte> forwardsWavFileByteCollection)
         {
-            var forwardsArray = forwardsWavFileByteCollection.ToArray();
-            Validator.ValidateFileContents(forwardsArray, Metadata);
+            //var forwardsArray = forwardsWavFileByteCollection.ToArray();
+            //Validator.ValidateFileContents(forwardsArray, Metadata);
             const int StartIndexOfAudioDataChunk = 44;
-            byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(forwardsArray, StartIndexOfAudioDataChunk);
-            byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(forwardsArray, StartIndexOfAudioDataChunk);
+            byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(_forwardsWavFileStreamByteArray, StartIndexOfAudioDataChunk);
+            byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(_forwardsWavFileStreamByteArray, StartIndexOfAudioDataChunk);
 
             const int BitsPerByte = 8;
             int bytesPerSample = Metadata.BitsPerSample / BitsPerByte;
