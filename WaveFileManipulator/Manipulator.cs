@@ -1,6 +1,6 @@
 ﻿/*
+http://soundfile.sapp.org/doc/WaveFormat/
 http://www.topherlee.com/software/pcm-tut-wavformat.html
-http://blogs.msdn.com/b/dawate/archive/2009/06/23/intro-to-audio-programming-part-2-demystifying-the-wav-format.aspx
 http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
 Positions Sample Value Description
 0 - 3 "RIFF" Marks the file as a riff file. Characters are each 1 byte long.
@@ -34,10 +34,13 @@ namespace WaveFileManipulator
 {
     public class Manipulator : IManipulator
     {
+        public Metadata Metadata { get; private set; }
+
         public byte[] Reverse(string forwardsWavFilePath)
-        {
+        {            
             Validator.ValidateWavFileExtension(forwardsWavFilePath);
             byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
+            Metadata = new Metadata(forwardsWavFileStreamByteArray);
             byte[] reversedWavFileStreamByteArray = Reverse(forwardsWavFileStreamByteArray);
 
             return reversedWavFileStreamByteArray;
@@ -46,13 +49,13 @@ namespace WaveFileManipulator
         public byte[] Reverse(IEnumerable<byte> forwardsWavFileByteCollection)
         {
             var forwardsArray = forwardsWavFileByteCollection.ToArray();
-            Validator.ValidateFileContents(forwardsArray);
+            Validator.ValidateFileContents(forwardsArray, Metadata);
             const int StartIndexOfAudioDataChunk = 44;
             byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(forwardsArray, StartIndexOfAudioDataChunk);
             byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(forwardsArray, StartIndexOfAudioDataChunk);
 
             const int BitsPerByte = 8;
-            int bytesPerSample = MetadataGatherer.GetBitsPerSample(forwardsArray) / BitsPerByte;
+            int bytesPerSample = Metadata.BitsPerSample / BitsPerByte;
             byte[] reversedArrayWithOnlyAudioData = SamplesManipulator.Reverse(bytesPerSample, forwardsArrayWithOnlyAudioData);
             byte[] reversedWavFileStreamByteArray = CombineArrays(forwardsArrayWithOnlyHeaders, reversedArrayWithOnlyAudioData);
 

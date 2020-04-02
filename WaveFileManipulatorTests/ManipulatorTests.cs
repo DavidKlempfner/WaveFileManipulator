@@ -22,23 +22,11 @@ namespace WaveFileManipulatorTests
         }
 
         [TestMethod]
-        public void MetaDataGathererTest()
-        {
-            byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(@"C:\Users\David'\Desktop\WavFiles\out.wav");
-
-            var x = MetadataGatherer.GetMetadata(forwardsWavFileStreamByteArray);
-
-            var audioFormat = MetadataGatherer.GetAudioFormat(forwardsWavFileStreamByteArray);
-            var numOfChannels = MetadataGatherer.GetNumOfChannels(forwardsWavFileStreamByteArray);
-            var sampleRate = MetadataGatherer.GetSampleRate(forwardsWavFileStreamByteArray);
-        }
-
-        [TestMethod]
         public void Run()
         {
             var manipulator = new Manipulator();
             var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\out.wav");
-            //WriteReversedWavFileByteArrayToFile(reversedByteArray, @"C:\Users\David'\Desktop\WavFiles\16BitPCM\ReversedShort.wav");
+            WriteReversedWavFileByteArrayToFile(reversedByteArray, @"C:\Users\David'\Desktop\WavFiles\16BitPCM\ReversedShort.wav");
         }
 
         [TestMethod]

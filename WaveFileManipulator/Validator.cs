@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace WaveFileManipulator
 {
@@ -15,7 +14,7 @@ namespace WaveFileManipulator
             }
         }
 
-        public static void ValidateFileContents(byte[] array)
+        public static void ValidateFileContents(byte[] array, Metadata metadata)
         {
             const int MinSizeOfWavFile = 71;                                                
             if (array.Length < MinSizeOfWavFile)
@@ -23,15 +22,14 @@ namespace WaveFileManipulator
                 throw new ArgumentOutOfRangeException($"File is not large enough for a WAVE file.");
             }
 
-            WaveStringValid(array);
-            RiffStringValid(array);
-            FmtStringValid(array);
-            LengthOfFormatDataIs16(array);
+            WaveStringValid(metadata.Format);
+            RiffStringValid(metadata.ChunkId);
+            FmtStringValid(metadata.SubChunk1Id);
+            LengthOfFormatDataIs16(metadata.SubChunk1Size);
         }
 
-        private static void WaveStringValid(byte[] array)
+        private static void WaveStringValid(string waveString)
         {
-            var waveString = MetadataGatherer.GetWaveString(array);
             const string Wave = "WAVE";
             if (waveString != Wave)
             {
@@ -39,9 +37,8 @@ namespace WaveFileManipulator
             }
         }
 
-        private static void RiffStringValid(byte[] array)
+        private static void RiffStringValid(string riffString)
         {
-            var riffString = MetadataGatherer.GetRiffString(array);
             const string Riff = "RIFF";
             if (riffString != Riff)
             {
@@ -49,9 +46,8 @@ namespace WaveFileManipulator
             }
         }
 
-        private static void FmtStringValid(byte[] array)
+        private static void FmtStringValid(string fmtString)
         {
-            var fmtString = MetadataGatherer.GetFmtString(array);
             const string Fmt = "fmt ";
             if (fmtString != Fmt)
             {
@@ -59,10 +55,9 @@ namespace WaveFileManipulator
             }
         }
 
-        private static void LengthOfFormatDataIs16(byte[] array)
+        private static void LengthOfFormatDataIs16(uint lengthOfFormatData)
         {
-            var lengthOfFormatData = MetadataGatherer.GetLengthOfFormatData(array);
-            const int ExpectedLengthOfFormatData = 16;
+            const uint ExpectedLengthOfFormatData = 16;
             if (lengthOfFormatData != ExpectedLengthOfFormatData)
             {
                 ThrowIncorrectValueException("LengthOfFormat", lengthOfFormatData);
@@ -74,7 +69,7 @@ namespace WaveFileManipulator
             throw new ArgumentException($"{missingString} is not present in file contents.");
         }
 
-        private static void ThrowIncorrectValueException(string valueName, int incorrectValue)
+        private static void ThrowIncorrectValueException(string valueName, uint incorrectValue)
         {
             throw new ArgumentException($"{valueName} has an incorrect value of {incorrectValue}.");
         }
