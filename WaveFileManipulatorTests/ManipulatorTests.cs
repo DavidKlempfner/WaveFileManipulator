@@ -24,8 +24,8 @@ namespace WaveFileManipulatorTests
         [TestMethod]
         public void Run()
         {
-            var manipulator = new Manipulator();
-            var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\out.wav");
+            var manipulator = new Manipulator(@"C:\Users\David'\Desktop\WavFiles\out.wav");
+            var reversedByteArray = manipulator.Reverse();
             WriteReversedWavFileByteArrayToFile(reversedByteArray, @"C:\Users\David'\Desktop\WavFiles\16BitPCM\ReversedShort.wav");
         }
 
@@ -33,11 +33,11 @@ namespace WaveFileManipulatorTests
         public void ReversedFileIsSameSizeAsOriginal()
         {
             //Arrange
-            var manipulator = new Manipulator();
+            var manipulator = new Manipulator(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\Short.wav");
             var expectedByteArray = new byte[35992];
 
             //Act
-            var reversedByteArray = manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\Short.wav");            
+            var reversedByteArray = manipulator.Reverse();            
             
             //Assert
             Assert.AreEqual(expectedByteArray.Length, reversedByteArray.Length);
@@ -48,10 +48,10 @@ namespace WaveFileManipulatorTests
         public void NonExistentFileThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();
+            var manipulator = new Manipulator(@"C:\thisFileDoesntExist.wav");
 
             //Act
-            manipulator.Reverse(@"C:\thisFileDoesntExist.wav");
+            manipulator.Reverse();
         }
 
         [TestMethod]
@@ -59,10 +59,10 @@ namespace WaveFileManipulatorTests
         public void WrongFileExtensionThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();
+            var manipulator = new Manipulator(@"C:\thisFileDoesntExist.txt");
 
             //Act
-            manipulator.Reverse(@"C:\thisFileDoesntExist.txt");
+            manipulator.Reverse();
         }
 
         [TestMethod]
@@ -70,10 +70,10 @@ namespace WaveFileManipulatorTests
         public void NonWaveFileContentFormatThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();
+            var manipulator = new Manipulator(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\notWavFormat.wav");
 
             //Act
-            manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\notWavFormat.wav");
+            manipulator.Reverse();
         }
 
         [TestMethod]
@@ -81,10 +81,10 @@ namespace WaveFileManipulatorTests
         public void TooSmallFileThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();
+            var manipulator = new Manipulator(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\tooSmall.wav");
 
             //Act
-            manipulator.Reverse(@"C:\Users\David'\Desktop\WavFiles\16BitPCM\tooSmall.wav");
+            manipulator.Reverse();
         }
 
         [TestMethod]
@@ -92,11 +92,11 @@ namespace WaveFileManipulatorTests
         public void NullArrayThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();
             IEnumerable<byte> array = null;
+            var manipulator = new Manipulator(array);            
 
             //Act
-            manipulator.Reverse(array);
+            manipulator.Reverse();
         }
 
         [TestMethod]
@@ -104,11 +104,11 @@ namespace WaveFileManipulatorTests
         public void NullStringThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();
             string array = null;
-
+            var manipulator = new Manipulator(array);
+            
             //Act
-            manipulator.Reverse(array);
+            manipulator.Reverse();
         }
 
         [TestMethod]
@@ -116,10 +116,10 @@ namespace WaveFileManipulatorTests
         public void EmptyStringThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator();            
+            var manipulator = new Manipulator("");            
 
             //Act
-            manipulator.Reverse("");
+            manipulator.Reverse();
         }        
 
         private static void WriteReversedWavFileByteArrayToFile(byte[] reversedWavFileStreamByteArray, string reversedWavFilePath)

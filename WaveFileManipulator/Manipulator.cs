@@ -35,34 +35,29 @@ namespace WaveFileManipulator
     public class Manipulator : IManipulator
     {
         public Metadata Metadata { get; private set; }
-        private byte[] _forwardsWavFileStreamByteArray;
+        private readonly byte[] _forwardsWavFileStreamByteArray;
+
         public Manipulator(string forwardsWavFilePath)
         {
             Validator.ValidateWavFileExtension(forwardsWavFilePath);
             _forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
-            Metadata = new Metadata(_forwardsWavFileStreamByteArray);
+            Setup();
         }
+
         public Manipulator(IEnumerable<byte> forwardsWavFileByteCollection)
         {
             _forwardsWavFileStreamByteArray = forwardsWavFileByteCollection.ToArray();
+            Setup();
+        }
+
+        private void Setup()
+        {
             Validator.ValidateFileContents(_forwardsWavFileStreamByteArray, Metadata);
             Metadata = new Metadata(_forwardsWavFileStreamByteArray);
         }
 
-        //public byte[] Reverse(string forwardsWavFilePath)
-        //{            
-        //    //Validator.ValidateWavFileExtension(forwardsWavFilePath);
-        //    //byte[] forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
-        //    //Metadata = new Metadata(forwardsWavFileStreamByteArray);
-        //    byte[] reversedWavFileStreamByteArray = Reverse(_forwardsWavFileStreamByteArray);
-
-        //    return reversedWavFileStreamByteArray;
-        //}
-
-        public byte[] Reverse(IEnumerable<byte> forwardsWavFileByteCollection)
+        public byte[] Reverse()
         {
-            //var forwardsArray = forwardsWavFileByteCollection.ToArray();
-            //Validator.ValidateFileContents(forwardsArray, Metadata);
             const int StartIndexOfAudioDataChunk = 44;
             byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(_forwardsWavFileStreamByteArray, StartIndexOfAudioDataChunk);
             byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(_forwardsWavFileStreamByteArray, StartIndexOfAudioDataChunk);

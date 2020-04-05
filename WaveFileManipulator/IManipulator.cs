@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace WaveFileManipulator
+﻿namespace WaveFileManipulator
 {
     public interface IManipulator
     {
-        byte[] Reverse(string forwardsWavFilePath);
-        byte[] Reverse(IEnumerable<byte> forwardsWavFileByteCollection);
+        byte[] Reverse();
     }
 }
