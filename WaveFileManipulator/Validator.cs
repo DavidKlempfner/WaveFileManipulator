@@ -22,10 +22,10 @@ namespace WaveFileManipulator
                 throw new ArgumentOutOfRangeException($"File is not large enough for a WAVE file.");
             }
 
-            WaveStringValid(metadata.Format);
-            RiffStringValid(metadata.ChunkId);
-            FmtStringValid(metadata.SubChunk1Id);
-            LengthOfFormatDataIs16(metadata.SubChunk1Size);
+            WaveStringValid(metadata.Format.Value);
+            RiffStringValid(metadata.ChunkId.Value);
+            FmtStringValid(metadata.SubChunk1Id.Value);
+            LengthOfFormatDataIs16(metadata.SubChunk1Size.Value);
         }
 
         private static void WaveStringValid(string waveString)
@@ -73,5 +73,7 @@ namespace WaveFileManipulator
         {
             throw new ArgumentException($"{valueName} has an incorrect value of {incorrectValue}.");
         }
+
+        //TODO: validate all other values.
     }
 }

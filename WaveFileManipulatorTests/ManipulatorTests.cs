@@ -8,25 +8,19 @@ namespace WaveFileManipulatorTests
 {
     [TestClass]
     public class ManipulatorTests
-    {
-        private byte[] PopulateForwardsWavFileByteArray(string forwardsWavFilePath)
-        {
-            byte[] forwardsWavFileStreamByteArray;
-            using (FileStream forwardsWavFileStream = new FileStream(forwardsWavFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                forwardsWavFileStreamByteArray = new byte[forwardsWavFileStream.Length];
-                forwardsWavFileStream.Read(forwardsWavFileStreamByteArray, 0, (int)forwardsWavFileStream.Length);
-            }
-
-            return forwardsWavFileStreamByteArray;
-        }
-
+    {        
         [TestMethod]
         public void Run()
         {
-            var manipulator = new Manipulator(@"C:\Users\David'\Desktop\WavFiles\out.wav");
+            var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\16BitPCM\Backwards.wav";
+            var manipulator = new Manipulator(filePath);
             var reversedByteArray = manipulator.Reverse();
-            WriteReversedWavFileByteArrayToFile(reversedByteArray, @"C:\Users\David'\Desktop\WavFiles\16BitPCM\ReversedShort.wav");
+            
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+            var fileDirectoryPath = Path.GetDirectoryName(filePath);
+            var outputFilePath = Path.Combine(fileDirectoryPath, fileNameWithoutExtension + "Reversed.wav");
+            WriteReversedWavFileByteArrayToFile(reversedByteArray, outputFilePath);
         }
 
         [TestMethod]

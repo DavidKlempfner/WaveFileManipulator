@@ -1,4 +1,6 @@
 ﻿/*
+ * https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
+ * https://sites.google.com/site/musicgapi/technical-documents/wav-file-format
 http://soundfile.sapp.org/doc/WaveFormat/
 http://www.topherlee.com/software/pcm-tut-wavformat.html
 http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
@@ -52,18 +54,17 @@ namespace WaveFileManipulator
 
         private void Setup()
         {
-            Validator.ValidateFileContents(_forwardsWavFileStreamByteArray, Metadata);
             Metadata = new Metadata(_forwardsWavFileStreamByteArray);
+            Validator.ValidateFileContents(_forwardsWavFileStreamByteArray, Metadata);            
         }
 
         public byte[] Reverse()
         {
-            const int StartIndexOfAudioDataChunk = 44;
-            byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(_forwardsWavFileStreamByteArray, StartIndexOfAudioDataChunk);
-            byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(_forwardsWavFileStreamByteArray, StartIndexOfAudioDataChunk);
+            byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(_forwardsWavFileStreamByteArray, Metadata.DataStartIndex);
+            byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(_forwardsWavFileStreamByteArray, Metadata.DataStartIndex);
 
             const int BitsPerByte = 8;
-            int bytesPerSample = Metadata.BitsPerSample / BitsPerByte;
+            int bytesPerSample = Metadata.BitsPerSample.Value / BitsPerByte;
             byte[] reversedArrayWithOnlyAudioData = SamplesManipulator.Reverse(bytesPerSample, forwardsArrayWithOnlyAudioData);
             byte[] reversedWavFileStreamByteArray = CombineArrays(forwardsArrayWithOnlyHeaders, reversedArrayWithOnlyAudioData);
 
