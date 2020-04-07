@@ -7,6 +7,19 @@ namespace WaveFileManipulator
     {
         public Metadata(byte[] array)
         {
+            ArraySize = array.Length;
+
+            NumOfSamples = ArraySize - DataStartIndex;
+
+            var numOfChannelsArray = array.SubArray(NumOfChannels.StartIndex, NumOfChannels.Length);
+            NumOfChannels = new NumOfChannels(ConvertToUShort(numOfChannelsArray));
+
+            var sampleRateArray = array.SubArray(SampleRate.StartIndex, SampleRate.Length);
+            SampleRate = new SampleRate(ConvertToUInt(sampleRateArray));
+
+            var bitsPerSampleArray = array.SubArray(BitsPerSample.StartIndex, BitsPerSample.Length);
+            BitsPerSample = new BitsPerSample(ConvertToUShort(bitsPerSampleArray));
+
             var chunkIdArray = array.SubArray(ChunkId.StartIndex, ChunkId.Length);
             ChunkId = new ChunkId(ConvertToString(chunkIdArray));
 
@@ -25,20 +38,11 @@ namespace WaveFileManipulator
             var audioFormatArray = array.SubArray(AudioFormat.StartIndex, AudioFormat.Length);
             AudioFormat = new AudioFormat(ConvertToUShort(audioFormatArray));
 
-            var numOfChannelsArray = array.SubArray(NumOfChannels.StartIndex, NumOfChannels.Length);
-            NumOfChannels = new NumOfChannels(ConvertToUShort(numOfChannelsArray));
-
-            var sampleRateArray = array.SubArray(SampleRate.StartIndex, SampleRate.Length);
-            SampleRate = new SampleRate(ConvertToUInt(sampleRateArray));
-
             var byteRateArray = array.SubArray(ByteRate.StartIndex, ByteRate.Length);
             ByteRate = new ByteRate(ConvertToUInt(byteRateArray));
 
             var blockAlignArray = array.SubArray(BlockAlign.StartIndex, BlockAlign.Length);
             BlockAlign = new BlockAlign(ConvertToUShort(blockAlignArray));
-
-            var bitsPerSampleArray = array.SubArray(BitsPerSample.StartIndex, BitsPerSample.Length);
-            BitsPerSample = new BitsPerSample(ConvertToUShort(bitsPerSampleArray));
 
             var subChunk2IdArray = array.SubArray(SubChunk2Id.StartIndex, SubChunk2Id.Length);
             SubChunk2Id = new SubChunk2Id(ConvertToString(subChunk2IdArray));
@@ -46,7 +50,7 @@ namespace WaveFileManipulator
             var subChunk2SizeArray = array.SubArray(SubChunk2Size.StartIndex, SubChunk2Size.Length);
             SubChunk2Size = new SubChunk2Size(ConvertToUInt(subChunk2SizeArray));
 
-            DataStartIndex = GetDataStartIndex(array);
+            DataStartIndex = GetDataStartIndex(array);            
         }
 
         /// <summary>
@@ -67,7 +71,23 @@ namespace WaveFileManipulator
         /// ie fileSize - 8 bytes.
         /// uint
         /// </summary>
-        public ChunkSize ChunkSize { get; private set; }
+        private ChunkSize _chunkSize;
+        public ChunkSize ChunkSize 
+        { 
+            get { return _chunkSize; }
+            set
+            {
+                var expectedValue = ArraySize - 8;
+                if (expectedValue == value.Value)
+                {
+                    _chunkSize = value;
+                }
+                else
+                {
+                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(ChunkSize));
+                }
+            }
+        }
 
         /// <summary>
         /// Endian: Big.
@@ -124,7 +144,23 @@ namespace WaveFileManipulator
         /// SampleRate * NumChannels * BitsPerSample/8.
         /// uint
         /// </summary>
-        public ByteRate ByteRate { get; private set; }
+        private ByteRate _byteRate;
+        public ByteRate ByteRate
+        {
+            get { return _byteRate; }
+            set 
+            {
+                var expectedValue = SampleRate.Value * NumOfChannels.Value * BitsPerSample.Value / 8;
+                if (expectedValue == value.Value)
+                {
+                    _byteRate = value;
+                }
+                else
+                {
+                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(ByteRate));
+                }
+            }
+        }
 
         /// <summary>
         /// Endian: Little.
@@ -133,7 +169,22 @@ namespace WaveFileManipulator
         /// The number of bytes for one sample including all channels.
         /// ushort
         /// </summary>
-        public BlockAlign BlockAlign { get; private set; }
+        private BlockAlign _blockAlign;
+        public BlockAlign BlockAlign {
+            get { return _blockAlign; }
+            set
+            {
+                var expectedValue = NumOfChannels.Value * BitsPerSample.Value / 8;
+                if (expectedValue == value.Value)
+                {
+                    _blockAlign = value;
+                }
+                else
+                {
+                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(BlockAlign));
+                }
+            }
+        }
 
         /// <summary>
         /// Endian: Little.
@@ -154,20 +205,40 @@ namespace WaveFileManipulator
         /// <summary>
         /// Endian: Little.
         /// Index = 40, Length = 4.
-        /// NumSamples * NumChannels * BitsPerSample/8.
+        /// NumOfSamples * NumOfChannels * BitsPerSample/8. This is not correct.
         /// This is the number of bytes in the data.
         /// uint
         /// </summary>
-        public SubChunk2Size SubChunk2Size { get; private set; }
+        private SubChunk2Size _subChunk2Size;
+        public SubChunk2Size SubChunk2Size 
+        {
+            get { return _subChunk2Size; }
+            set
+            {                
+                var expectedValue = ArraySize - SubChunk2Size.StartIndex - SubChunk2Size.Length;
+                if (expectedValue == value.Value || SubChunk2Id.Value == "LIST")
+                {
+                    _subChunk2Size = value;
+                }
+                else
+                {
+                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(SubChunk2Size));                    
+                }
+            }
+        }
 
         public int DataStartIndex { get; private set; }
+
+        public int ArraySize { get; private set; }
+
+        public int NumOfSamples { get; private set; }
 
         private int GetDataStartIndex(byte[] array)
         {
             int dataStartIndex = 0;
             var indexAfterSubChunk2Size = SubChunk2Size.StartIndex + SubChunk2Size.Length;
-
-            if (SubChunk2Id.Value == "DATA")
+            const string DataText = "data";
+            if (SubChunk2Id.Value == DataText)
             {
                 dataStartIndex = indexAfterSubChunk2Size;
             }
@@ -176,7 +247,7 @@ namespace WaveFileManipulator
                 var dataIdStartIndex = indexAfterSubChunk2Size + (int)SubChunk2Size.Value; //Start of "data"
                 const int lengthOfDataText = 4;
                 var dataText = ConvertToString(array.SubArray(dataIdStartIndex, lengthOfDataText));
-                if (dataText == "data")
+                if (dataText == DataText)
                 {
                     const int lengthOfDataSize = 4;
                     dataStartIndex = dataIdStartIndex + lengthOfDataText + lengthOfDataSize;
@@ -202,6 +273,11 @@ namespace WaveFileManipulator
         private ushort ConvertToUShort(byte[] array)
         {
             return BitConverter.ToUInt16(array, 0);
+        }
+
+        private void ThrowOutOfRangeException(object expectedValue, object actualValue, string typeName)
+        {
+            throw new ArgumentException($"Expected {expectedValue} but received {actualValue} which is invalid for {nameof(SubChunk2Size)}");
         }
     }
 
