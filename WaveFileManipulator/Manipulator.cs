@@ -55,7 +55,7 @@ namespace WaveFileManipulator
         private void Setup()
         {
             Metadata = new Metadata(_forwardsWavFileStreamByteArray);
-            Validator.ValidateFileContents(_forwardsWavFileStreamByteArray, Metadata);            
+            Validator.ValidateFileMinSize(_forwardsWavFileStreamByteArray, Metadata);            
         }
 
         public byte[] Reverse()

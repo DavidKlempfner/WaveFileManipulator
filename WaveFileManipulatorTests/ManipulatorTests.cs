@@ -12,8 +12,8 @@ namespace WaveFileManipulatorTests
         [TestMethod]
         public void Run()
         {
-            var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
-            //var filePath = @"C:\Users\David'\Desktop\WavFiles\16BitPCM\Backwards.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+            var filePath = @"C:\Users\David'\Desktop\WavFiles\16BitPCM\Backwards.wav";
             var manipulator = new Manipulator(filePath);
             var reversedByteArray = manipulator.Reverse();
             
@@ -60,7 +60,7 @@ namespace WaveFileManipulatorTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void NonWaveFileContentFormatThrowsException()
         {
             //Arrange

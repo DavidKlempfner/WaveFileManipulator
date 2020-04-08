@@ -7,7 +7,7 @@ using WaveFileManipulator;
 namespace WaveFileManipulatorTests
 {
     [TestClass]
-    public class MetadataValidationTests
+    public class MetadataTests
     {
         byte[] dataArray =
                 { 82, 73, 70, 70, //ChunkId = "RIFF"
@@ -45,12 +45,12 @@ namespace WaveFileManipulatorTests
                 1, 2, 3, 4}; //2 samples of fake data
 
         [TestMethod]
-        public void RightArrayDoesNotThrowException()
+        public void CorrectArrayDoesNotThrowException()
         {
             //Arrange
             byte[] array =
                 { 82, 73, 70, 70, //ChunkId = "RIFF"
-                40, 0, 0, 0, //ChunkSize = 40 = right
+                40, 0, 0, 0, //ChunkSize = 40 = Correct
                 87, 65, 86, 69, //Format = "WAVE"
                 102, 109, 116, 32, //SubChunk1Id = "fmt "
                 16, 0, 0, 0, //SubChunk1Size = 16
@@ -70,12 +70,12 @@ namespace WaveFileManipulatorTests
 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
-        public void WrongChunkSizeThrowsException()
+        public void IncorrectChunkSizeThrowsException()
         {
             //Arrange
             byte[] array =
                 { 82, 73, 70, 70, //ChunkId = "RIFF"
-                44, 0, 0, 0, //ChunkSize = 44 = wrong
+                44, 0, 0, 0, //ChunkSize = 44 = Incorrect
                 87, 65, 86, 69, //Format = "WAVE"
                 102, 109, 116, 32, //SubChunk1Id = "fmt "
                 16, 0, 0, 0, //SubChunk1Size = 16
@@ -95,7 +95,7 @@ namespace WaveFileManipulatorTests
 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
-        public void WrongByteRateThrowsException()
+        public void IncorrectByteRateThrowsException()
         {
             //Arrange
             byte[] array =
@@ -107,7 +107,7 @@ namespace WaveFileManipulatorTests
                 1, 0, //AudioFormat = 1
                 2, 0, //NumOfChannels = 2
                 68, 172, 0, 0, //SampleRate = 44100
-                16, 177, 2, 1, //ByteRate = wrong
+                16, 177, 2, 1, //ByteRate = Incorrect
                 4, 0, //BlockAlign = 4
                 16, 0, //BitsPerSample = 16
                 100, 97, 116, 97, //SubChunk2Id = "data"
@@ -120,7 +120,7 @@ namespace WaveFileManipulatorTests
 
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
-        public void WrongBlockAlignThrowsException()
+        public void IncorrectBlockAlignThrowsException()
         {
             //Arrange
             byte[] array =
@@ -133,7 +133,7 @@ namespace WaveFileManipulatorTests
                 2, 0, //NumOfChannels = 2
                 68, 172, 0, 0, //SampleRate = 44100
                 16, 177, 2, 0, //ByteRate = 176400
-                4, 3, //BlockAlign = wrong
+                4, 3, //BlockAlign = Incorrect
                 16, 0, //BitsPerSample = 16
                 100, 97, 116, 97, //SubChunk2Id = "data"
                 4, 0, 0, 0,  //SubChunk2Size = 4
@@ -143,9 +143,9 @@ namespace WaveFileManipulatorTests
             _ = new Metadata(array);
         }
 
-        //[ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
-        public void WrongSubChunk2SizeThrowsException()
+        public void IncorrectSubChunk2SizeThrowsException()
         {
             //Arrange
             byte[] array =
@@ -161,11 +161,39 @@ namespace WaveFileManipulatorTests
                 4, 0, //BlockAlign = 4
                 16, 0, //BitsPerSample = 16
                 100, 97, 116, 97, //SubChunk2Id = "data"
-                4, 21, 0, 0,  //SubChunk2Size = 4
+                4, 21, 0, 0,  //SubChunk2Size = Incorrect
                 1, 2, 3, 4}; //2 samples of fake data      
 
             //Act
             _ = new Metadata(array);
+        }
+
+        //TODO: Test this with multiple sub-chunks
+        [TestMethod]
+        public void DataStartIndexIsCorrect()
+        {
+            //Arrange
+            byte[] array =
+                { 82, 73, 70, 70, //ChunkId = "RIFF"
+                40, 0, 0, 0, //ChunkSize = 40
+                87, 65, 86, 69, //Format = "WAVE"
+                102, 109, 116, 32, //SubChunk1Id = "fmt "
+                16, 0, 0, 0, //SubChunk1Size = 16
+                1, 0, //AudioFormat = 1
+                2, 0, //NumOfChannels = 2
+                68, 172, 0, 0, //SampleRate = 44100
+                16, 177, 2, 0, //ByteRate = 176400
+                4, 0, //BlockAlign = 4
+                16, 0, //BitsPerSample = 16
+                100, 97, 116, 97, //SubChunk2Id = "data"
+                4, 0, 0, 0,  //SubChunk2Size = 4
+                1, 2, 3, 4}; //2 samples of fake data
+
+            //Act
+            var metadata = new Metadata(array);
+
+            //Assert
+            Assert.AreEqual(44, metadata.DataStartIndex);
         }
     }
 }

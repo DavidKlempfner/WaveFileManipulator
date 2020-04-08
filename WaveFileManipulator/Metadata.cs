@@ -5,6 +5,7 @@ namespace WaveFileManipulator
 {
     public class Metadata
     {
+        const string DataText = "data";
         public Metadata(byte[] array)
         {
             ArraySize = array.Length;
@@ -50,7 +51,7 @@ namespace WaveFileManipulator
             var subChunk2SizeArray = array.SubArray(SubChunk2Size.StartIndex, SubChunk2Size.Length);
             SubChunk2Size = new SubChunk2Size(ConvertToUInt(subChunk2SizeArray));
 
-            DataStartIndex = GetDataStartIndex(array);            
+            DataStartIndex = GetDataStartIndex(array);
         }
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace WaveFileManipulator
         /// uint
         /// </summary>
         private ChunkSize _chunkSize;
-        public ChunkSize ChunkSize 
-        { 
+        public ChunkSize ChunkSize
+        {
             get { return _chunkSize; }
             set
             {
@@ -148,7 +149,7 @@ namespace WaveFileManipulator
         public ByteRate ByteRate
         {
             get { return _byteRate; }
-            set 
+            set
             {
                 var expectedValue = SampleRate.Value * NumOfChannels.Value * BitsPerSample.Value / 8;
                 if (expectedValue == value.Value)
@@ -170,7 +171,8 @@ namespace WaveFileManipulator
         /// ushort
         /// </summary>
         private BlockAlign _blockAlign;
-        public BlockAlign BlockAlign {
+        public BlockAlign BlockAlign
+        {
             get { return _blockAlign; }
             set
             {
@@ -210,11 +212,11 @@ namespace WaveFileManipulator
         /// uint
         /// </summary>
         private SubChunk2Size _subChunk2Size;
-        public SubChunk2Size SubChunk2Size 
+        public SubChunk2Size SubChunk2Size
         {
             get { return _subChunk2Size; }
             set
-            {                
+            {
                 var expectedValue = ArraySize - SubChunk2Size.StartIndex - SubChunk2Size.Length;
                 if (expectedValue == value.Value || SubChunk2Id.Value == "LIST")
                 {
@@ -222,7 +224,7 @@ namespace WaveFileManipulator
                 }
                 else
                 {
-                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(SubChunk2Size));                    
+                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(SubChunk2Size));
                 }
             }
         }
@@ -235,31 +237,37 @@ namespace WaveFileManipulator
 
         private int GetDataStartIndex(byte[] array)
         {
-            int dataStartIndex = 0;
             var indexAfterSubChunk2Size = SubChunk2Size.StartIndex + SubChunk2Size.Length;
-            const string DataText = "data";
+            int dataStartIndex;
             if (SubChunk2Id.Value == DataText)
             {
                 dataStartIndex = indexAfterSubChunk2Size;
             }
-            else if (SubChunk2Id.Value == "LIST")
+            else
             {
-                var dataIdStartIndex = indexAfterSubChunk2Size + (int)SubChunk2Size.Value; //Start of "data"
-                const int lengthOfDataText = 4;
-                var dataText = ConvertToString(array.SubArray(dataIdStartIndex, lengthOfDataText));
-                if (dataText == DataText)
-                {
-                    const int lengthOfDataSize = 4;
-                    dataStartIndex = dataIdStartIndex + lengthOfDataText + lengthOfDataSize;
-                }
-                else
-                {
-                    throw new ArgumentException("Could not find DATA SubChunkId in array.");
-                }
+                dataStartIndex = SearchForStartIndexAfterHeader(array.SubArray(SubChunk2Id.StartIndex, array.Length - SubChunk2Id.StartIndex));
             }
             return dataStartIndex;
         }
         
+        private int SearchForStartIndexAfterHeader(byte[] array)
+        {
+            const int lengthOfChunkId = 4;
+            const int lengthOfValue = 4;                        
+
+            string chunkId = ConvertToString(array.SubArray(0, lengthOfChunkId));
+            if (chunkId == DataText)
+            {
+                int startIndex = ArraySize - array.Length + lengthOfChunkId + lengthOfValue;
+                return startIndex;
+            }
+            var chunkSize = (int)ConvertToUInt(array.SubArray(lengthOfChunkId, lengthOfValue));
+            int numOfBytesToSkip = lengthOfChunkId + chunkSize + lengthOfValue; //"AnId", chunkSize (eg 26 bytes), 
+            return SearchForStartIndexAfterHeader(array.SubArray(numOfBytesToSkip, array.Length - numOfBytesToSkip));
+
+            throw new ArgumentException($"Could not find {DataText} start index.");
+        }
+
         private string ConvertToString(byte[] array)
         {
             return Encoding.UTF8.GetString(array, 0, array.Length);
@@ -474,7 +482,7 @@ namespace WaveFileManipulator
         {
             return Value.ToString();
         }
-    }    
+    }
 }
 
 //TODO:
