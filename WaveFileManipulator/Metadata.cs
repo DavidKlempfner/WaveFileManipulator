@@ -277,7 +277,7 @@ namespace WaveFileManipulator
 
         private void ThrowOutOfRangeException(object expectedValue, object actualValue, string typeName)
         {
-            throw new ArgumentException($"Expected {expectedValue} but received {actualValue} which is invalid for {nameof(SubChunk2Size)}");
+            throw new ArgumentOutOfRangeException(typeName, $"Expected {expectedValue} but received {actualValue}.");
         }
     }
 

@@ -8,12 +8,12 @@ namespace WaveFileManipulatorTests
 {
     [TestClass]
     public class ManipulatorTests
-    {        
+    {                
         [TestMethod]
         public void Run()
         {
-            //var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
-            var filePath = @"C:\Users\David'\Desktop\WavFiles\16BitPCM\Backwards.wav";
+            var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\16BitPCM\Backwards.wav";
             var manipulator = new Manipulator(filePath);
             var reversedByteArray = manipulator.Reverse();
             
