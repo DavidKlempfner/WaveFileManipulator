@@ -38,12 +38,9 @@ namespace WaveFileManipulator
         public const int Length = 4;
     }
 
-    public class ChunkSize : Section<uint>
-    {
-        public ChunkSize(uint value)
-        {
-            Value = value;
-        }
+    public class ChunkSize : ExpectedValueSection<uint>
+    {        
+        public ChunkSize(uint value, uint expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 4;
         public const int Length = 4;
     }
@@ -110,17 +107,14 @@ namespace WaveFileManipulator
 
     public class ByteRate : ExpectedValueSection<uint>
     {
-        public ByteRate(uint value, uint expectedValue) : base(value, expectedValue) { }        
+        public ByteRate(uint value, uint expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 28;
         public const int Length = 4;
     }
 
-    public class BlockAlign : Section<ushort>
+    public class BlockAlign : ExpectedValueSection<ushort>
     {
-        public BlockAlign(ushort value)
-        {
-            Value = value;
-        }
+        public BlockAlign(ushort value, ushort expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 32;
         public const int Length = 2;
     }
@@ -145,12 +139,9 @@ namespace WaveFileManipulator
         public const int Length = 4;
     }
 
-    public class SubChunk2Size : Section<uint>
+    public class SubChunk2Size : ExpectedValueSection<uint>
     {
-        public SubChunk2Size(uint value)
-        {
-            Value = value;
-        }
+        public SubChunk2Size(uint value, uint expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 40;
         public const int Length = 4;
     }
