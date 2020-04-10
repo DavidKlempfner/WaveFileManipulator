@@ -13,6 +13,11 @@ namespace WaveFileManipulatorTests
         public void Run()
         {
             //var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\10MG.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\Ensoniq-ESQ-1-Xplore-C3.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\StarWars60.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\gettysburg10.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\a2002011001-e02.wav";
             var filePath = @"C:\Users\David'\Desktop\WavFiles\16BitPCM\Backwards.wav";
             var manipulator = new Manipulator(filePath);
             var reversedByteArray = manipulator.Reverse();

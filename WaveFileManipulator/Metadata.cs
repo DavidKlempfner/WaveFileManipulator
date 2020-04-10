@@ -25,7 +25,8 @@ namespace WaveFileManipulator
             ChunkId = new ChunkId(ConvertToString(chunkIdArray));
 
             var chunkSizeArray = array.SubArray(ChunkSize.StartIndex, ChunkSize.Length);
-            ChunkSize = new ChunkSize(ConvertToUInt(chunkSizeArray));
+            uint chunkSizeExpectedValue = ArraySize - 8;
+            ChunkSize = new ChunkSize(ConvertToUInt(chunkSizeArray), chunkSizeExpectedValue);
 
             var formatArray = array.SubArray(Format.StartIndex, Format.Length);
             Format = new Format(ConvertToString(formatArray));
@@ -40,7 +41,8 @@ namespace WaveFileManipulator
             AudioFormat = new AudioFormat(ConvertToUShort(audioFormatArray));
 
             var byteRateArray = array.SubArray(ByteRate.StartIndex, ByteRate.Length);
-            ByteRate = new ByteRate(ConvertToUInt(byteRateArray));
+            uint byteRateExpectedValue = SampleRate.Value * NumOfChannels.Value * BitsPerSample.Value / 8;
+            ByteRate = new ByteRate(ConvertToUInt(byteRateArray), byteRateExpectedValue);
 
             var blockAlignArray = array.SubArray(BlockAlign.StartIndex, BlockAlign.Length);
             BlockAlign = new BlockAlign(ConvertToUShort(blockAlignArray));
@@ -76,7 +78,7 @@ namespace WaveFileManipulator
         public ChunkSize ChunkSize
         {
             get { return _chunkSize; }
-            set
+            private set
             {
                 var expectedValue = ArraySize - 8;
                 if (expectedValue == value.Value)
@@ -138,30 +140,7 @@ namespace WaveFileManipulator
         /// uint
         /// </summary>
         public SampleRate SampleRate { get; private set; }
-
-        /// <summary>
-        /// Endian: Little.
-        /// Index = 28, Length = 4.
-        /// SampleRate * NumChannels * BitsPerSample/8.
-        /// uint
-        /// </summary>
-        private ByteRate _byteRate;
-        public ByteRate ByteRate
-        {
-            get { return _byteRate; }
-            set
-            {
-                var expectedValue = SampleRate.Value * NumOfChannels.Value * BitsPerSample.Value / 8;
-                if (expectedValue == value.Value)
-                {
-                    _byteRate = value;
-                }
-                else
-                {
-                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(ByteRate));
-                }
-            }
-        }
+        public ByteRate ByteRate { get; private set; }
 
         /// <summary>
         /// Endian: Little.
@@ -174,7 +153,7 @@ namespace WaveFileManipulator
         public BlockAlign BlockAlign
         {
             get { return _blockAlign; }
-            set
+            private set
             {
                 var expectedValue = NumOfChannels.Value * BitsPerSample.Value / 8;
                 if (expectedValue == value.Value)
@@ -215,7 +194,7 @@ namespace WaveFileManipulator
         public SubChunk2Size SubChunk2Size
         {
             get { return _subChunk2Size; }
-            set
+            private set
             {
                 var expectedValue = ArraySize - SubChunk2Size.StartIndex - SubChunk2Size.Length;
                 if (expectedValue == value.Value || SubChunk2Id.Value == "LIST")
@@ -224,7 +203,7 @@ namespace WaveFileManipulator
                 }
                 else
                 {
-                    ThrowOutOfRangeException(expectedValue, value.Value, nameof(SubChunk2Size));
+                    //ThrowOutOfRangeException(expectedValue, value.Value, nameof(SubChunk2Size));
                 }
             }
         }
@@ -239,31 +218,52 @@ namespace WaveFileManipulator
         {
             var indexAfterSubChunk2Size = SubChunk2Size.StartIndex + SubChunk2Size.Length;
             int dataStartIndex;
-            if (SubChunk2Id.Value == DataText)
+            if (SubChunk2Id.Value == DataText) //Normal start index for "data"
             {
                 dataStartIndex = indexAfterSubChunk2Size;
             }
             else
             {
-                dataStartIndex = SearchForStartIndexAfterHeader(array.SubArray(SubChunk2Id.StartIndex, array.Length - SubChunk2Id.StartIndex));
+                //dataStartIndex = SearchForStartIndexAfterHeader(array.SubArray(SubChunk2Id.StartIndex, array.Length - SubChunk2Id.StartIndex));
+                dataStartIndex = SearchForStartIndex(array);
             }
             return dataStartIndex;
         }
         
-        private int SearchForStartIndexAfterHeader(byte[] array)
+        private int SearchForStartIndex(byte[] array)
         {
-            const int lengthOfChunkId = 4;
-            const int lengthOfValue = 4;                        
+            const byte dAscii = 100;
+            const byte aAscii = 97;
+            const byte tAscii = 116;
 
-            string chunkId = ConvertToString(array.SubArray(0, lengthOfChunkId));
-            if (chunkId == DataText)
+            const int lengthOfSizeValue = 4;
+
+            for (int i = 0; i < array.Length; i++)
             {
-                int startIndex = ArraySize - array.Length + lengthOfChunkId + lengthOfValue;
-                return startIndex;
+                if (array[i] == dAscii)
+                {
+                    var secondCharIndex = i + 1;
+                    var thirdCharIndex = i + 2;
+                    var fourthCharIndex = i + 3;
+                    if (array[secondCharIndex] == aAscii && array[thirdCharIndex] == tAscii && array[fourthCharIndex] == aAscii)
+                    {
+                        var startIndex = fourthCharIndex + lengthOfSizeValue + 1;
+                        return startIndex;
+                    }
+                }
             }
-            var chunkSize = (int)ConvertToUInt(array.SubArray(lengthOfChunkId, lengthOfValue));
-            int numOfBytesToSkip = lengthOfChunkId + chunkSize + lengthOfValue; //"AnId", chunkSize (eg 26 bytes), 
-            return SearchForStartIndexAfterHeader(array.SubArray(numOfBytesToSkip, array.Length - numOfBytesToSkip));
+            //const int lengthOfChunkId = 4;
+            //const int lengthOfValue = 4;                        
+
+            //string chunkId = ConvertToString(array.SubArray(0, lengthOfChunkId));
+            //if (chunkId == DataText)
+            //{
+            //    int startIndex = ArraySize - array.Length + lengthOfChunkId + lengthOfValue;
+            //    return startIndex;
+            //}
+            //var chunkSize = (int)ConvertToUInt(array.SubArray(lengthOfChunkId, lengthOfValue));
+            //int numOfBytesToSkip = lengthOfChunkId + chunkSize + lengthOfValue; //"AnId", chunkSize (eg 26 bytes), 
+            //return SearchForStartIndexAfterHeader(array.SubArray(numOfBytesToSkip, array.Length - numOfBytesToSkip));
 
             throw new ArgumentException($"Could not find {DataText} start index.");
         }
@@ -287,202 +287,7 @@ namespace WaveFileManipulator
         {
             throw new ArgumentOutOfRangeException(typeName, $"Expected {expectedValue} but received {actualValue}.");
         }
-    }
-
-    public class ChunkId
-    {
-        public ChunkId(string value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 0;
-        public const int Length = 4;
-        public readonly string Value;
-        public override string ToString()
-        {
-            return Value;
-        }
-    }
-
-    public class ChunkSize
-    {
-        public ChunkSize(uint value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 4;
-        public const int Length = 4;
-        public readonly uint Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class Format
-    {
-        public Format(string value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 8;
-        public const int Length = 4;
-        public readonly string Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class SubChunk1Id
-    {
-        public SubChunk1Id(string value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 12;
-        public const int Length = 4;
-        public readonly string Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class SubChunk1Size
-    {
-        public SubChunk1Size(uint value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 16;
-        public const int Length = 4;
-        public readonly uint Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class AudioFormat
-    {
-        public AudioFormat(ushort value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 20;
-        public const int Length = 2;
-        public readonly ushort Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class NumOfChannels
-    {
-        public NumOfChannels(ushort value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 22;
-        public const int Length = 2;
-        public readonly ushort Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class SampleRate
-    {
-        public SampleRate(uint value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 24;
-        public const int Length = 4;
-        public readonly uint Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class ByteRate
-    {
-        public ByteRate(uint value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 28;
-        public const int Length = 4;
-        public readonly uint Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class BlockAlign
-    {
-        public BlockAlign(ushort value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 32;
-        public const int Length = 2;
-        public readonly ushort Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class BitsPerSample
-    {
-        public BitsPerSample(ushort value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 34;
-        public const int Length = 2;
-        public readonly ushort Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class SubChunk2Id
-    {
-        public SubChunk2Id(string value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 36;
-        public const int Length = 4;
-        public readonly string Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    public class SubChunk2Size
-    {
-        public SubChunk2Size(uint value)
-        {
-            Value = value;
-        }
-        public const int StartIndex = 40;
-        public const int Length = 4;
-        public readonly uint Value;
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
+    }    
 }
 
 //TODO:
