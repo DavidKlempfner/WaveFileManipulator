@@ -82,14 +82,19 @@ namespace WaveFileManipulator
 
             DataStartIndex = GetDataStartIndex(array);
 
-            PopulateInfo(_info, array);
+            //PopulateInfo(_info, array);
             Info = new ReadOnlyDictionary<string, string>(_info);
 
         }
 
         private void PopulateInfo(Dictionary<string, string> info, byte[] array)
         {
-            throw new NotImplementedException();
+            int infoStartIndex;
+            
+            //for (int i = 0; i < length; i++)
+            //{
+
+            //}
         }
 
         /// <summary>
@@ -217,7 +222,12 @@ namespace WaveFileManipulator
             else
             {
                 const int chunkSizeLength = 4;
-                dataStartIndex = TextFinder.GetStartIndexOfText(array, DataText) + DataText.Length + chunkSizeLength;
+                var startIndexOfText = TextFinder.GetStartIndexOfText(array, DataText);
+                if (startIndexOfText == -1)
+                {
+                    throw new ArgumentException($"{DataText} not found.");
+                }
+                dataStartIndex = startIndexOfText + DataText.Length + chunkSizeLength;                
             }
             return dataStartIndex;
         }        

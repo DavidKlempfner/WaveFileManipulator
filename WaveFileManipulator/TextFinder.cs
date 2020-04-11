@@ -36,7 +36,8 @@ namespace WaveFileManipulator
                 }
 
             }
-            throw new ArgumentException($"{text} was not found.", nameof(array));
+            const int notFoundIndicator = -1;
+            return notFoundIndicator;
         }
     }
 }

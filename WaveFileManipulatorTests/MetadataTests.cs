@@ -67,10 +67,9 @@ namespace WaveFileManipulatorTests
             //Act
             _ = new Metadata(array);
         }
-
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        
         [TestMethod]
-        public void IncorrectChunkSizeThrowsException()
+        public void IncorrectChunkSize()
         {
             //Arrange
             byte[] array =
@@ -90,12 +89,14 @@ namespace WaveFileManipulatorTests
                 1, 2, 3, 4}; //2 samples of fake data      
 
             //Act
-            _ = new Metadata(array);
+            var metadata = new Metadata(array);
+
+            //Assert
+            Assert.AreEqual(false, metadata.ChunkSize.IsValueExpected);
         }        
 
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
-        public void IncorrectByteRateThrowsException()
+        public void IncorrectByteRate()
         {
             //Arrange
             byte[] array =
@@ -115,12 +116,14 @@ namespace WaveFileManipulatorTests
                 1, 2, 3, 4}; //2 samples of fake data      
 
             //Act
-            _ = new Metadata(array);
+            var metadata = new Metadata(array);
+
+            //Assert
+            Assert.AreEqual(false, metadata.ByteRate.IsValueExpected);
         }
 
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
-        public void IncorrectBlockAlignThrowsException()
+        public void IncorrectBlock()
         {
             //Arrange
             byte[] array =
@@ -140,10 +143,12 @@ namespace WaveFileManipulatorTests
                 1, 2, 3, 4}; //2 samples of fake data      
 
             //Act
-            _ = new Metadata(array);
+            var metadata = new Metadata(array);
+
+            //Assert
+            Assert.AreEqual(false, metadata.BlockAlign.IsValueExpected);
         }
 
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         [TestMethod]
         public void IncorrectSubChunk2SizeThrowsException()
         {
@@ -165,7 +170,10 @@ namespace WaveFileManipulatorTests
                 1, 2, 3, 4}; //2 samples of fake data      
 
             //Act
-            _ = new Metadata(array);
+            var metadata = new Metadata(array);
+
+            //Assert
+            Assert.AreEqual(false, metadata.SubChunk2Size.IsValueExpected);
         }
 
         //TODO: Test this with multiple sub-chunks

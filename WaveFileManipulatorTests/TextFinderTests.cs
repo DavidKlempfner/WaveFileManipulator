@@ -48,8 +48,7 @@ namespace WaveFileManipulatorTests
             //Assert
             Assert.AreEqual(3, startIndex);
         }
-
-        [ExpectedException(typeof(ArgumentException))]
+        
         [TestMethod]
         public void NoSpaceLeftToContinueSearching()
         {
@@ -58,7 +57,24 @@ namespace WaveFileManipulatorTests
             var text = "data";
 
             //Act
-            _ = TextFinder.GetStartIndexOfText(array, text);
+            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+
+            //Assert
+            Assert.AreEqual(-1, startIndex);
+        }
+
+        [TestMethod]
+        public void TextNotFound()
+        {
+            //Arrange
+            byte[] array = { 21, 72, 3, 104, 98, 136 };
+            var text = "data";
+
+            //Act
+            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+
+            //Assert
+            Assert.AreEqual(-1, startIndex);
         }
     }
 }
