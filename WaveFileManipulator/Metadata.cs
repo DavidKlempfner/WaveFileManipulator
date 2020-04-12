@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections.ObjectModel;
 
 namespace WaveFileManipulator
@@ -8,94 +7,94 @@ namespace WaveFileManipulator
     public class Metadata
     {
         const string DataText = "data";
-        
+
         /// <summary>
-        /// Values are from https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
+        /// Keys are from https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
         /// </summary>
-        private readonly Dictionary<string, string> _info = new Dictionary<string, string>
-        {
-            { "IARL", "" }, { "IART", "" }, { "ICMS", "" }, { "ICMT", "" }, { "ICOP", "" },
-            { "ICRD", "" }, { "ICRP", "" }, { "IDIM", "" }, { "IDPI", "" }, { "IENG", "" },
-            { "IGNR", "" }, { "IKEY", "" }, { "ILGT", "" }, { "IMED", "" }, { "INAM", "" },
-            { "IPLT", "" }, { "IPRD", "" }, { "ISBJ", "" }, { "ISFT", "" }, { "ISRC", "" }, 
-            { "ISRF", "" }, { "ITCH", "" }
-        };
         public readonly IReadOnlyDictionary<string, string> Info;
 
         public Metadata(byte[] array)
         {
-            //LIST
-            //Info ID(4 byte ASCII text) for information 1
-            //Size of text 1
-            //Text 1
-            //Info ID(4 byte ASCII text) for information 2
-            //Size of text 2
-            //Text 2            
-
             ArraySize = array.Length;
 
             NumOfSamples = ArraySize - DataStartIndex;
 
             var numOfChannelsArray = array.SubArray(NumOfChannels.StartIndex, NumOfChannels.Length);
-            NumOfChannels = new NumOfChannels(ConvertToUShort(numOfChannelsArray));
+            NumOfChannels = new NumOfChannels(Converters.ConvertToUShort(numOfChannelsArray));
 
             var sampleRateArray = array.SubArray(SampleRate.StartIndex, SampleRate.Length);
-            SampleRate = new SampleRate(ConvertToUInt(sampleRateArray));
+            SampleRate = new SampleRate(Converters.ConvertToUInt(sampleRateArray));
 
             var bitsPerSampleArray = array.SubArray(BitsPerSample.StartIndex, BitsPerSample.Length);
-            BitsPerSample = new BitsPerSample(ConvertToUShort(bitsPerSampleArray));
+            BitsPerSample = new BitsPerSample(Converters.ConvertToUShort(bitsPerSampleArray));
 
             var chunkIdArray = array.SubArray(ChunkId.StartIndex, ChunkId.Length);
             const string chunkIdExpectedValue = "RIFF";
-            ChunkId = new ChunkId(ConvertToString(chunkIdArray), chunkIdExpectedValue);
+            ChunkId = new ChunkId(Converters.ConvertToString(chunkIdArray), chunkIdExpectedValue);
 
             var chunkSizeArray = array.SubArray(ChunkSize.StartIndex, ChunkSize.Length);
             var chunkSizeExpectedValue = ArraySize - 8;
-            ChunkSize = new ChunkSize(ConvertToUInt(chunkSizeArray), (uint)chunkSizeExpectedValue);
+            ChunkSize = new ChunkSize(Converters.ConvertToUInt(chunkSizeArray), (uint)chunkSizeExpectedValue);
 
             var formatArray = array.SubArray(Format.StartIndex, Format.Length);
             const string formatArrayExpectedValue = "WAVE";
-            Format = new Format(ConvertToString(formatArray), formatArrayExpectedValue);
+            Format = new Format(Converters.ConvertToString(formatArray), formatArrayExpectedValue);
 
             var subChunk1IdArray = array.SubArray(SubChunk1Id.StartIndex, SubChunk1Id.Length);
             const string subChunk1IdExpectedValue = "fmt ";
-            SubChunk1Id = new SubChunk1Id(ConvertToString(subChunk1IdArray), subChunk1IdExpectedValue);
+            SubChunk1Id = new SubChunk1Id(Converters.ConvertToString(subChunk1IdArray), subChunk1IdExpectedValue);
 
             var subChunk1SizeArray = array.SubArray(SubChunk1Size.StartIndex, SubChunk1Size.Length);
-            SubChunk1Size = new SubChunk1Size(ConvertToUInt(subChunk1SizeArray));
+            SubChunk1Size = new SubChunk1Size(Converters.ConvertToUInt(subChunk1SizeArray));
 
             var audioFormatArray = array.SubArray(AudioFormat.StartIndex, AudioFormat.Length);
-            AudioFormat = new AudioFormat(ConvertToUShort(audioFormatArray));
+            AudioFormat = new AudioFormat(Converters.ConvertToUShort(audioFormatArray));
 
             var byteRateArray = array.SubArray(ByteRate.StartIndex, ByteRate.Length);
             uint byteRateExpectedValue = SampleRate.Value * NumOfChannels.Value * BitsPerSample.Value / 8;
-            ByteRate = new ByteRate(ConvertToUInt(byteRateArray), byteRateExpectedValue);
+            ByteRate = new ByteRate(Converters.ConvertToUInt(byteRateArray), byteRateExpectedValue);
 
             var blockAlignArray = array.SubArray(BlockAlign.StartIndex, BlockAlign.Length);
             var blockAlignExpectedValue = NumOfChannels.Value * BitsPerSample.Value / 8;
-            BlockAlign = new BlockAlign(ConvertToUShort(blockAlignArray), (ushort)blockAlignExpectedValue);
+            BlockAlign = new BlockAlign(Converters.ConvertToUShort(blockAlignArray), (ushort)blockAlignExpectedValue);
 
             var subChunk2IdArray = array.SubArray(SubChunk2Id.StartIndex, SubChunk2Id.Length);
-            SubChunk2Id = new SubChunk2Id(ConvertToString(subChunk2IdArray));
+            SubChunk2Id = new SubChunk2Id(Converters.ConvertToString(subChunk2IdArray));
 
             var subChunk2SizeArray = array.SubArray(SubChunk2Size.StartIndex, SubChunk2Size.Length);
             var subChunk2SizeExpectedValue = ArraySize - SubChunk2Size.StartIndex - SubChunk2Size.Length;
-            SubChunk2Size = new SubChunk2Size(ConvertToUInt(subChunk2SizeArray), (uint)subChunk2SizeExpectedValue);
+            SubChunk2Size = new SubChunk2Size(Converters.ConvertToUInt(subChunk2SizeArray), (uint)subChunk2SizeExpectedValue);
 
             DataStartIndex = GetDataStartIndex(array);
 
-            //PopulateInfo(_info, array);
-            Info = new ReadOnlyDictionary<string, string>(_info);
+            //TODO: Add descriptions:
+            var listOfKeys = new List<string>
+            {
+                "IARL", "IART", "ICMS", "ICMT", "ICOP", 
+                "ICRD", "ICRP", "IDIM", "IDPI", "IENG", 
+                "IGNR", "IKEY", "ILGT", "IMED", "INAM", 
+                "IPLT", "IPRD", "ISBJ", "ISFT", "ISRC", 
+                "ISRF", "ITCH"
+            };
+            var dictionary = PopulateInfo(listOfKeys, array);
+            Info = new ReadOnlyDictionary<string, string>(dictionary);
         }
 
-        private void PopulateInfo(Dictionary<string, string> info, byte[] array)
+        private Dictionary<string, string> PopulateInfo(List<string> keys, byte[] array)
         {
-            int infoStartIndex;
-            
-            //for (int i = 0; i < length; i++)
-            //{
+            const string infoIdText = "INFO";
+            var infoIdStartIndex = ArraySearcher.GetStartIndexOfText(array, infoIdText);
 
-            //}
+            const int notFoundIndicator = -1;
+            Dictionary<string, string> info = new Dictionary<string, string>();
+            if (infoIdStartIndex != notFoundIndicator)
+            {
+                var infoDataStartIndex = infoIdStartIndex + infoIdText.Length;
+                var arrayFromInfoDataStartIndex = array.SubArray(infoDataStartIndex, array.Length - infoDataStartIndex);
+
+                info = ArraySearcher.GetKeysAndValues(keys, arrayFromInfoDataStartIndex);
+            }
+            return info;
         }
 
         /// <summary>
@@ -226,30 +225,15 @@ namespace WaveFileManipulator
             else
             {
                 const int chunkSizeLength = 4;
-                var startIndexOfText = TextFinder.GetStartIndexOfText(array, DataText);
+                var startIndexOfText = ArraySearcher.GetStartIndexOfText(array, DataText);
                 if (startIndexOfText == -1)
                 {
                     throw new ArgumentException($"{DataText} not found.");
                 }
-                dataStartIndex = startIndexOfText + DataText.Length + chunkSizeLength;                
+                dataStartIndex = startIndexOfText + DataText.Length + chunkSizeLength;
             }
             return dataStartIndex;
-        }        
-
-        private string ConvertToString(byte[] array)
-        {
-            return Encoding.UTF8.GetString(array, 0, array.Length);
         }
-
-        private uint ConvertToUInt(byte[] array)
-        {
-            return BitConverter.ToUInt32(array, 0);
-        }
-
-        private ushort ConvertToUShort(byte[] array)
-        {
-            return BitConverter.ToUInt16(array, 0);
-        }        
     }
 }
 

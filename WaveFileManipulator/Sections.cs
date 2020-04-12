@@ -11,6 +11,10 @@ namespace WaveFileManipulator
         }
     }
 
+    /// <summary>
+    /// Value should be an "expected" value according to the canonical WAVE file format.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ExpectedValueSection<T> : Section<T>
     {
         public ExpectedValueSection(T value, T expectedValue)

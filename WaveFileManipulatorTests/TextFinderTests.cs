@@ -14,7 +14,7 @@ namespace WaveFileManipulatorTests
             var text = "data";
 
             //Act
-            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+            var startIndex = ArraySearcher.GetStartIndexOfText(array, text);
 
             //Assert
             Assert.AreEqual(3, startIndex);
@@ -28,7 +28,7 @@ namespace WaveFileManipulatorTests
             var text = "data";
 
             //Act
-            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+            var startIndex = ArraySearcher.GetStartIndexOfText(array, text);
 
             //Assert
             Assert.AreEqual(0, startIndex);
@@ -42,7 +42,7 @@ namespace WaveFileManipulatorTests
             var text = "data";
 
             //Act
-            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+            var startIndex = ArraySearcher.GetStartIndexOfText(array, text);
 
             //Assert
             Assert.AreEqual(3, startIndex);
@@ -56,7 +56,7 @@ namespace WaveFileManipulatorTests
             var text = "data";
 
             //Act
-            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+            var startIndex = ArraySearcher.GetStartIndexOfText(array, text);
 
             //Assert
             Assert.AreEqual(-1, startIndex);
@@ -70,7 +70,7 @@ namespace WaveFileManipulatorTests
             var text = "data";
 
             //Act
-            var startIndex = TextFinder.GetStartIndexOfText(array, text);
+            var startIndex = ArraySearcher.GetStartIndexOfText(array, text);
 
             //Assert
             Assert.AreEqual(-1, startIndex);
