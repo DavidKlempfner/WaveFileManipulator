@@ -30,8 +30,7 @@ namespace WaveFileManipulator
             //Text 1
             //Info ID(4 byte ASCII text) for information 2
             //Size of text 2
-            //Text 2
-            
+            //Text 2            
 
             ArraySize = array.Length;
 
@@ -47,17 +46,20 @@ namespace WaveFileManipulator
             BitsPerSample = new BitsPerSample(ConvertToUShort(bitsPerSampleArray));
 
             var chunkIdArray = array.SubArray(ChunkId.StartIndex, ChunkId.Length);
-            ChunkId = new ChunkId(ConvertToString(chunkIdArray));
+            const string chunkIdExpectedValue = "RIFF";
+            ChunkId = new ChunkId(ConvertToString(chunkIdArray), chunkIdExpectedValue);
 
             var chunkSizeArray = array.SubArray(ChunkSize.StartIndex, ChunkSize.Length);
             var chunkSizeExpectedValue = ArraySize - 8;
             ChunkSize = new ChunkSize(ConvertToUInt(chunkSizeArray), (uint)chunkSizeExpectedValue);
 
             var formatArray = array.SubArray(Format.StartIndex, Format.Length);
-            Format = new Format(ConvertToString(formatArray));
+            const string formatArrayExpectedValue = "WAVE";
+            Format = new Format(ConvertToString(formatArray), formatArrayExpectedValue);
 
             var subChunk1IdArray = array.SubArray(SubChunk1Id.StartIndex, SubChunk1Id.Length);
-            SubChunk1Id = new SubChunk1Id(ConvertToString(subChunk1IdArray));
+            const string subChunk1IdExpectedValue = "fmt ";
+            SubChunk1Id = new SubChunk1Id(ConvertToString(subChunk1IdArray), subChunk1IdExpectedValue);
 
             var subChunk1SizeArray = array.SubArray(SubChunk1Size.StartIndex, SubChunk1Size.Length);
             SubChunk1Size = new SubChunk1Size(ConvertToUInt(subChunk1SizeArray));
@@ -84,7 +86,6 @@ namespace WaveFileManipulator
 
             //PopulateInfo(_info, array);
             Info = new ReadOnlyDictionary<string, string>(_info);
-
         }
 
         private void PopulateInfo(Dictionary<string, string> info, byte[] array)
@@ -167,7 +168,10 @@ namespace WaveFileManipulator
         public SampleRate SampleRate { get; private set; }
 
         /// <summary>
+        /// Endian: Little.
+        /// Index = 28, Length = 4.
         /// SampleRate * NumChannels * BitsPerSample/8
+        /// uint
         /// </summary>
         public ByteRate ByteRate { get; private set; }
 
@@ -215,7 +219,7 @@ namespace WaveFileManipulator
         {
             var indexAfterSubChunk2Size = SubChunk2Size.StartIndex + SubChunk2Size.Length;
             int dataStartIndex;
-            if (SubChunk2Id.Value == DataText) //Normal start index for "data"
+            if (SubChunk2Id.Value == DataText) //Expected start index for "data"
             {
                 dataStartIndex = indexAfterSubChunk2Size;
             }

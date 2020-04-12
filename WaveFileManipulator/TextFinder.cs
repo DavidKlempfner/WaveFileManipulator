@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WaveFileManipulator
+﻿namespace WaveFileManipulator
 {
     public static class TextFinder
     {

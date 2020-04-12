@@ -1,17 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using WaveFileManipulator;
 
 namespace WaveFileManipulatorTests
 {
     [TestClass]
     public class MetadataTests
-    {
-        byte[] dataArray =
+    {        
+        [TestMethod]
+        public void CorrectDataArrayDoesNotThrowException()
+        {
+            //Arrange
+            byte[] dataArray =
                 { 82, 73, 70, 70, //ChunkId = "RIFF"
-                40, 0, 0, 0, //ChunkSize = 40
+                40, 0, 0, 0, //ChunkSize = 40 = Correct
                 87, 65, 86, 69, //Format = "WAVE"
                 102, 109, 116, 32, //SubChunk1Id = "fmt "
                 16, 0, 0, 0, //SubChunk1Size = 16
@@ -25,7 +26,15 @@ namespace WaveFileManipulatorTests
                 4, 0, 0, 0,  //SubChunk2Size = 4
                 1, 2, 3, 4}; //2 samples of fake data
 
-        byte[] listArray =
+            //Act
+            _ = new Metadata(dataArray);
+        }
+
+        [TestMethod]
+        public void CorrectListArrayDoesNotThrowException()
+        {
+            //Arrange
+            byte[] listArray =
                 { 82, 73, 70, 70, //ChunkId = "RIFF"
                 70, 96, 115, 2, //ChunkSize = 41115718
                 87, 65, 86, 69, //Format = "WAVE"
@@ -44,30 +53,10 @@ namespace WaveFileManipulatorTests
                 4, 0, 0, 0, //num of data bytes
                 1, 2, 3, 4}; //2 samples of fake data
 
-        [TestMethod]
-        public void CorrectArrayDoesNotThrowException()
-        {
-            //Arrange
-            byte[] array =
-                { 82, 73, 70, 70, //ChunkId = "RIFF"
-                40, 0, 0, 0, //ChunkSize = 40 = Correct
-                87, 65, 86, 69, //Format = "WAVE"
-                102, 109, 116, 32, //SubChunk1Id = "fmt "
-                16, 0, 0, 0, //SubChunk1Size = 16
-                1, 0, //AudioFormat = 1
-                2, 0, //NumOfChannels = 2
-                68, 172, 0, 0, //SampleRate = 44100
-                16, 177, 2, 0, //ByteRate = 176400
-                4, 0, //BlockAlign = 4
-                16, 0, //BitsPerSample = 16
-                100, 97, 116, 97, //SubChunk2Id = "data"
-                4, 0, 0, 0,  //SubChunk2Size = 4
-                1, 2, 3, 4}; //2 samples of fake data
-
             //Act
-            _ = new Metadata(array);
+            _ = new Metadata(listArray);
         }
-        
+
         [TestMethod]
         public void IncorrectChunkSize()
         {
@@ -175,8 +164,7 @@ namespace WaveFileManipulatorTests
             //Assert
             Assert.AreEqual(false, metadata.SubChunk2Size.IsValueExpected);
         }
-
-        //TODO: Test this with multiple sub-chunks
+        
         [TestMethod]
         public void DataStartIndexIsCorrect()
         {

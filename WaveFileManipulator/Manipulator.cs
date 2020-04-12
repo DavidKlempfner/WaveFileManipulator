@@ -1,6 +1,6 @@
 ﻿/*
- * https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
- * https://sites.google.com/site/musicgapi/technical-documents/wav-file-format
+https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
+https://sites.google.com/site/musicgapi/technical-documents/wav-file-format
 http://soundfile.sapp.org/doc/WaveFormat/
 http://www.topherlee.com/software/pcm-tut-wavformat.html
 http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html

@@ -28,12 +28,9 @@ namespace WaveFileManipulator
         }
     }
 
-    public class ChunkId : Section<string>
+    public class ChunkId : ExpectedValueSection<string>
     {
-        public ChunkId(string value)
-        {
-            Value = value;
-        }
+        public ChunkId(string value, string expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 0;
         public const int Length = 4;
     }
@@ -45,22 +42,16 @@ namespace WaveFileManipulator
         public const int Length = 4;
     }
 
-    public class Format : Section<string>
+    public class Format : ExpectedValueSection<string>
     {
-        public Format(string value)
-        {
-            Value = value;
-        }
+        public Format(string value, string expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 8;
         public const int Length = 4;
     }
 
-    public class SubChunk1Id : Section<string>
+    public class SubChunk1Id : ExpectedValueSection<string>
     {
-        public SubChunk1Id(string value)
-        {
-            Value = value;
-        }
+        public SubChunk1Id(string value, string expectedValue) : base(value, expectedValue) { }
         public const int StartIndex = 12;
         public const int Length = 4;
     }
