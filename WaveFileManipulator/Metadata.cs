@@ -66,8 +66,7 @@ namespace WaveFileManipulator
             SubChunk2Size = new SubChunk2Size(Converters.ConvertToUInt(subChunk2SizeArray), (uint)subChunk2SizeExpectedValue);
 
             DataStartIndex = GetDataStartIndex(array);
-
-            //TODO: Add descriptions:
+            
             var listOfKeys = new List<string>
             {
                 "IARL", "IART", "ICMS", "ICMT", "ICOP", 

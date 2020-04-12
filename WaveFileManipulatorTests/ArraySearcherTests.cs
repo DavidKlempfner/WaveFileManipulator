@@ -4,7 +4,7 @@ using WaveFileManipulator;
 namespace WaveFileManipulatorTests
 {
     [TestClass]
-    public class TextFinderTests
+    public class ArraySearcherTests
     {
         [TestMethod]
         public void TextIsFound()
