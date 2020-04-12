@@ -18,26 +18,29 @@ namespace WaveFileManipulator
                 var foundFirstChar = array[i] == text[0];
                 if (foundFirstChar)
                 {
-                    for (int j = 1; j < text.Length; j++)
+                    var doNextCharsMatch = DoNextCharsMatchText(text, i, array);
+                    if (doNextCharsMatch)
                     {
-                        var doesNextCharMatch = array[i + j] == text[j];
-                        if (!doesNextCharMatch)
-                        {
-                            break;
-                        }
-
-                        bool isEndOfLoop = j == text.Length - 1;
-                        if (isEndOfLoop)
-                        {
-                            var startIndex = i + j - text.Length + 1;
-                            return startIndex;
-                        }
+                        return i;
                     }
                 }
 
             }
             const int notFoundIndicator = -1;
             return notFoundIndicator;
+        }
+
+        private static bool DoNextCharsMatchText(string text, int currentArrayIndex, byte[] array)
+        {
+            for (int j = 1; j < text.Length; j++)
+            {
+                var doesNextCharMatch = array[currentArrayIndex + j] == text[j];
+                if (!doesNextCharMatch)
+                {
+                    return false;
+                }                
+            }
+            return true;
         }
     }
 }
