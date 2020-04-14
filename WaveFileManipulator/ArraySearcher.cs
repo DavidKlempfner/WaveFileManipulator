@@ -41,28 +41,28 @@ namespace WaveFileManipulator
             return true;
         }
 
-        //TODO: test this
+        //TODO: test this more
         public static Dictionary<string, string> GetKeysAndValues(List<string> keys, byte[] array)
         {
-            const int infoIdLength = 4;
-            const int infoIdSizeLength = 4;
+            const int keyLength = 4;
+            const int keysValueLength = 4;
 
             Dictionary<string, string> info = new Dictionary<string, string>();
             bool shouldContinueSearching;
             int currentIndex = 0;
             do
             {
-                var nextFourChars = Converters.ConvertToString(array.SubArray(currentIndex, infoIdLength));
-                var areNextFourCharsInfoTextId = keys.Contains(nextFourChars);
-                if (areNextFourCharsInfoTextId)
+                var nextFourChars = Converters.ConvertToString(array.SubArray(currentIndex, keyLength));
+                var areNextFourCharsFoundInKeys = keys.Contains(nextFourChars);
+                if (areNextFourCharsFoundInKeys)
                 {
-                    currentIndex = currentIndex + nextFourChars.Length;
-                    var sizeOfIntoTextArray = array.SubArray(currentIndex, infoIdSizeLength);
-                    var sizeOfInfoText = (int)Converters.ConvertToUInt(sizeOfIntoTextArray);
-                    currentIndex = currentIndex + infoIdSizeLength;
-                    var infoText = Converters.ConvertToString(array.SubArray(currentIndex, sizeOfInfoText));
-                    info[nextFourChars] = infoText;
-                    currentIndex = currentIndex + sizeOfInfoText;
+                    currentIndex += nextFourChars.Length;
+                    var sizeOfKeysValueBytes = array.SubArray(currentIndex, keysValueLength);
+                    var sizeOfKeysValue = (int)Converters.ConvertToUInt(sizeOfKeysValueBytes);
+                    currentIndex += keysValueLength;
+                    var keysValue = Converters.ConvertToString(array.SubArray(currentIndex, sizeOfKeysValue));
+                    info[nextFourChars] = keysValue;
+                    currentIndex += sizeOfKeysValue;
                     shouldContinueSearching = true;
                 }
                 else
