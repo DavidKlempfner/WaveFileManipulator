@@ -12,6 +12,8 @@ namespace WaveFileManipulatorTests
         [TestMethod]
         public void Run()
         {
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\PinkPanther60.wav";
+            //var filePath = @"C:\Users\David'\Desktop\WavFiles\taunt.wav";
             var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
             //var filePath = @"C:\Users\David'\Desktop\WavFiles\10MG.wav";
             //var filePath = @"C:\Users\David'\Desktop\WavFiles\Ensoniq-ESQ-1-Xplore-C3.wav";
