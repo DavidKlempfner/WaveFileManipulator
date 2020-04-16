@@ -22,7 +22,7 @@ class Program
     }
 }
 ```
-* View the metadata given a byte array
+* View the metadata, given a byte array
 ```c#
 using WaveFileManipulator;
 
@@ -35,7 +35,7 @@ class Program
     }
 }
 ```
-* View the metadata given a file path
+* View the metadata, given a file path
 ```c#
 using WaveFileManipulator;
 
