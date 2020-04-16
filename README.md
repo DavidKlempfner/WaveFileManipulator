@@ -3,4 +3,4 @@ WaveFileManipulator is an open source .NET .wav file manipulation library writte
 ## Features
 * Reverse the audio
 * Get the metadata into a handy object model
-![Metadata example](Metadata.jpg)
+![Metadata example](WaveFileManipulator\Metadata.jpg)
