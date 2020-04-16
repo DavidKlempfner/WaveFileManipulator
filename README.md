@@ -7,7 +7,7 @@ WaveFileManipulator is an open source .NET .wav file manipulation library writte
 ![Metadata example](WaveFileManipulator/Metadata.JPG)
 
 ## Examples
-This is how you can reverse a .wav file:
+* Reverse the audio
 
 ```c#
 using WaveFileManipulator;
@@ -19,6 +19,33 @@ class Program
         var filePath = @"C:\File.wav";
         var manipulator = new Manipulator(filePath);
         var reversedByteArray = manipulator.Reverse();
+    }
+}
+```
+* View the metadata given a byte array
+```c#
+using WaveFileManipulator;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        byte[] byteArray = GetBytesFromWaveFile();
+        var metadata = new Metadata(byteArray);
+    }
+}
+```
+* View the metadata given a file path
+```c#
+using WaveFileManipulator;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+        var manipulator = new Manipulator(filePath);
+        var metadata = manipulator.Metadata;        
     }
 }
 ```
