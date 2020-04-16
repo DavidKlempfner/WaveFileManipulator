@@ -12,16 +12,13 @@ This is how you can reverse a .wav file:
 ```c#
 using WaveFileManipulator;
 
-namespace RunWaveFileManipulator
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            var filePath = @"C:\SomeWaveFile.wav";
-            var manipulator = new Manipulator(filePath);
-            var reversedByteArray = manipulator.Reverse(); //Write this to file
-        }
+        var filePath = @"C:\File.wav";
+        var manipulator = new Manipulator(filePath);
+        var reversedByteArray = manipulator.Reverse();
     }
 }
 ```
