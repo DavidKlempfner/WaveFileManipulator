@@ -43,7 +43,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+        var filePath = @"C:\File.wav";
         var manipulator = new Manipulator(filePath);
         var metadata = manipulator.Metadata;        
     }
