@@ -7,10 +7,7 @@ namespace WaveFileManipulator
     public class Metadata
     {
         const string DataText = "data";
-
-        /// <summary>
-        /// Keys are from https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
-        /// </summary>
+        
         public readonly IReadOnlyDictionary<string, string> Info;
 
         public Metadata(byte[] array)
@@ -66,7 +63,8 @@ namespace WaveFileManipulator
             SubChunk2Size = new SubChunk2Size(Converters.ConvertToUInt(subChunk2SizeArray), (uint)subChunk2SizeExpectedValue);
 
             DataStartIndex = GetDataStartIndex(array);
-            
+
+            //https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
             var listOfKeys = new List<string>
             {
                 "IARL", "IART", "ICMS", "ICMT", "ICOP", 
@@ -235,6 +233,3 @@ namespace WaveFileManipulator
         }
     }
 }
-
-//TODO:
-//The default byte ordering assumed for WAVE data files is little-endian.Files written using the big-endian byte ordering scheme have the identifier RIFX instead of RIFF.

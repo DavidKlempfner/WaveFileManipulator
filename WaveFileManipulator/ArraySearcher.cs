@@ -36,40 +36,51 @@ namespace WaveFileManipulator
                 if (!doesNextCharMatch)
                 {
                     return false;
-                }                
+                }
             }
             return true;
         }
 
-        //TODO: test this more
         public static Dictionary<string, string> GetKeysAndValues(List<string> keys, byte[] array)
         {
             const int keyLength = 4;
             const int keysValueLength = 4;
 
             Dictionary<string, string> info = new Dictionary<string, string>();
-            bool shouldContinueSearching;
             int currentIndex = 0;
             do
             {
                 var nextFourChars = Converters.ConvertToString(array.SubArray(currentIndex, keyLength));
                 var areNextFourCharsFoundInKeys = keys.Contains(nextFourChars);
-                if (areNextFourCharsFoundInKeys)
+                if (!areNextFourCharsFoundInKeys)
                 {
-                    currentIndex += nextFourChars.Length;
-                    var sizeOfKeysValueBytes = array.SubArray(currentIndex, keysValueLength);
-                    var sizeOfKeysValue = (int)Converters.ConvertToUInt(sizeOfKeysValueBytes);
-                    currentIndex += keysValueLength;
-                    var keysValue = Converters.ConvertToString(array.SubArray(currentIndex, sizeOfKeysValue));
-                    info[nextFourChars] = keysValue;
-                    currentIndex += sizeOfKeysValue;
-                    shouldContinueSearching = true;
+                    break;
+
                 }
-                else
+                currentIndex += nextFourChars.Length;
+                if (currentIndex + keysValueLength >= array.Length)
                 {
-                    shouldContinueSearching = false;
+                    break;
                 }
-            } while (shouldContinueSearching);
+                var sizeOfKeysValueBytes = array.SubArray(currentIndex, keysValueLength);
+                var sizeOfKeysValue = (int)Converters.ConvertToUInt(sizeOfKeysValueBytes);
+
+                currentIndex += keysValueLength;
+                if (currentIndex + sizeOfKeysValue > array.Length)
+                {
+                    break;
+                }
+                var keysValue = Converters.ConvertToString(array.SubArray(currentIndex, sizeOfKeysValue));
+                info[nextFourChars] = keysValue;
+
+                currentIndex += sizeOfKeysValue;
+                var tooCloseToEndOfArray = currentIndex > (array.Length - 1 - keyLength - keysValueLength);
+                if (tooCloseToEndOfArray)
+                {
+                    break;
+                }
+
+            } while (true);
             return info;
         }
     }

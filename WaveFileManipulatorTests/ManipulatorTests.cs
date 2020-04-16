@@ -76,7 +76,7 @@ namespace WaveFileManipulatorTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void TooSmallFileThrowsException()
         {
             //Arrange
