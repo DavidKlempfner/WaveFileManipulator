@@ -26,10 +26,10 @@ class Program
         var manipulator = new Manipulator(filePath);
         var reversedByteArray = manipulator.Reverse();
         
-                    using (FileStream reversedFileStream = new FileStream(@"C:\ReversedFile.wav", FileMode.Create, FileAccess.Write, FileShare.Write))
-            {
-                reversedFileStream.Write(reversedByteArray, 0, reversedByteArray.Length);
-            }
+		using (FileStream reversedFileStream = new FileStream(@"C:\ReversedFile.wav", FileMode.Create, FileAccess.Write, FileShare.Write))
+		{
+			reversedFileStream.Write(reversedByteArray, 0, reversedByteArray.Length);
+		}
     }
 }
 ```
