@@ -3,6 +3,7 @@ WaveFileManipulator is an open source .NET .wav file manipulation library writte
 ## Features
 * Reverse the audio
 * Get the metadata into a handy model
+* Use your own implementations
 
 ## Metadata
 The metadata model includes the following:
@@ -11,6 +12,10 @@ The metadata model includes the following:
 * Public constants so you know the start index for sections within the metadata
 
 ![Metadata example](WaveFileManipulator/Metadata.JPG)
+
+## Your Own Implementation
+Want to try a different array reversing algorithm?
+You can pass in your own implementation of IReverser into the Manipulator ctor.
 
 ## Examples
 * Reverse the audio
