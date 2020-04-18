@@ -19,15 +19,8 @@ Positions Sample Value Description
 36-39 "data" "data" chunk header. Marks the beginning of the data section.
 40-43 File size (data) Size of the data section.
 Sample values are given above for a 16-bit stereo source.
-*
-The above is correct until "data" (36 to 39).
-36 to 39 is actually "LIST".
-"data" starts at 70.
-Not sure what is between index 40 and index 69? There are 30 Bytes unaccounted for.
-*
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,43 +31,39 @@ namespace WaveFileManipulator
     {
         public Metadata Metadata { get; private set; }
         private readonly byte[] _forwardsWavFileStreamByteArray;
+        private IReverser _reverser;
 
-        public Manipulator(string forwardsWavFilePath)
+        public Manipulator(string filePath, IReverser reverser = null)
         {
-            Validator.ValidateWavFileExtension(forwardsWavFilePath);
-            _forwardsWavFileStreamByteArray = PopulateForwardsWavFileByteArray(forwardsWavFilePath);
-            Setup();
+            Validator.ValidateWavFileExtension(filePath);
+            _forwardsWavFileStreamByteArray = PopulateBytes(filePath);
+            Setup(reverser);
         }
 
-        public Manipulator(IEnumerable<byte> forwardsWavFileByteCollection)
+        public Manipulator(IEnumerable<byte> forwardsWavFileByteCollection, IReverser reverser = null)
         {
             _forwardsWavFileStreamByteArray = forwardsWavFileByteCollection.ToArray();
-            Setup();
+            Setup(reverser);
         }
 
-        private void Setup()
+        private void Setup(IReverser reverser)
         {
             Metadata = new Metadata(_forwardsWavFileStreamByteArray);
-            Validator.ValidateFileMinSize(_forwardsWavFileStreamByteArray, Metadata);            
+            Validator.ValidateFileMinSize(_forwardsWavFileStreamByteArray, Metadata);
+            if (reverser == null)
+            {
+                _reverser = new Reverser();
+            }
+            else
+            {
+                _reverser = reverser;
+            }
         }
 
-        public byte[] Reverse()
-        {
-            byte[] forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(_forwardsWavFileStreamByteArray, Metadata.DataStartIndex);
-            byte[] forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(_forwardsWavFileStreamByteArray, Metadata.DataStartIndex);
-
-            const int BitsPerByte = 8;
-            int bytesPerSample = Metadata.BitsPerSample.Value / BitsPerByte;
-            byte[] reversedArrayWithOnlyAudioData = SamplesManipulator.Reverse(bytesPerSample, forwardsArrayWithOnlyAudioData);
-            byte[] reversedWavFileStreamByteArray = CombineArrays(forwardsArrayWithOnlyHeaders, reversedArrayWithOnlyAudioData);
-
-            return reversedWavFileStreamByteArray;
-        }
-
-        private byte[] PopulateForwardsWavFileByteArray(string forwardsWavFilePath)
+        private byte[] PopulateBytes(string filePath)
         {
             byte[] forwardsWavFileStreamByteArray;
-            using (FileStream forwardsWavFileStream = new FileStream(forwardsWavFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (FileStream forwardsWavFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 forwardsWavFileStreamByteArray = new byte[forwardsWavFileStream.Length];
                 forwardsWavFileStream.Read(forwardsWavFileStreamByteArray, 0, (int)forwardsWavFileStream.Length);
@@ -83,26 +72,10 @@ namespace WaveFileManipulator
             return forwardsWavFileStreamByteArray;
         }
 
-        private byte[] CreateForwardsArrayWithOnlyHeaders(byte[] forwardsWavFileStreamByteArray, int startIndexOfDataChunk)
-        {
-            byte[] forwardsArrayWithOnlyHeaders = new byte[startIndexOfDataChunk];
-            Array.Copy(forwardsWavFileStreamByteArray, 0, forwardsArrayWithOnlyHeaders, 0, startIndexOfDataChunk);
-            return forwardsArrayWithOnlyHeaders;
-        }
-
-        private byte[] CreateForwardsArrayWithOnlyAudioData(byte[] forwardsWavFileStreamByteArray, int startIndexOfDataChunk)
-        {
-            byte[] forwardsArrayWithOnlyAudioData = new byte[forwardsWavFileStreamByteArray.Length - startIndexOfDataChunk];
-            Array.Copy(forwardsWavFileStreamByteArray, startIndexOfDataChunk, forwardsArrayWithOnlyAudioData, 0, forwardsWavFileStreamByteArray.Length - startIndexOfDataChunk);
-            return forwardsArrayWithOnlyAudioData;
-        }
-
-        private byte[] CombineArrays(byte[] forwardsArrayWithOnlyHeaders, byte[] reversedArrayWithOnlyAudioData)
-        {
-            byte[] reversedWavFileStreamByteArray = new byte[forwardsArrayWithOnlyHeaders.Length + reversedArrayWithOnlyAudioData.Length];
-            Array.Copy(forwardsArrayWithOnlyHeaders, reversedWavFileStreamByteArray, forwardsArrayWithOnlyHeaders.Length);
-            Array.Copy(reversedArrayWithOnlyAudioData, 0, reversedWavFileStreamByteArray, forwardsArrayWithOnlyHeaders.Length, reversedArrayWithOnlyAudioData.Length);
-            return reversedWavFileStreamByteArray;
+        public byte[] Reverse()
+        {            
+            var reversedSamples = _reverser.Reverse(Metadata, _forwardsWavFileStreamByteArray);
+            return reversedSamples;
         }
     }
 }
