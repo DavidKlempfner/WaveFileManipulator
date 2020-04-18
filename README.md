@@ -64,3 +64,15 @@ class Program
     }
 }
 ```
+* Find the start index of a chunk
+```c#
+using WaveFileManipulator;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var audioFormatStartIndex = AudioFormat.StartIndex;    
+    }
+}
+```
