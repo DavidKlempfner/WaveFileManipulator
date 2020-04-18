@@ -117,10 +117,30 @@ namespace WaveFileManipulatorTests
         public void EmptyStringThrowsException()
         {
             //Arrange
-            var manipulator = new Manipulator("");            
+            var manipulator = new Manipulator("");
 
             //Act
             manipulator.Reverse();
+        }
+        private class NewReverser : IReverser
+        {            
+            public byte[] Reverse(Metadata metadata, byte[] forwardsArrayWithOnlyHeaders, byte[] forwardsArrayWithOnlyAudioData)
+            {
+                return new byte[0];
+            }
+        }
+        [TestMethod]
+        public void DifferentIReverserImplementationWorks()
+        {
+            //Arrange
+            var filePath = @"C:\Users\David'\Desktop\WavFiles\out.wav";
+            var manipulator = new Manipulator(filePath, new NewReverser());
+
+            //Act
+            var reversedByteArray = manipulator.Reverse();
+
+            //Assert
+            Assert.AreEqual(0, reversedByteArray.Length);
         }
 
         private static void WriteReversedWavFileByteArrayToFile(byte[] reversedWavFileStreamByteArray, string reversedWavFilePath)

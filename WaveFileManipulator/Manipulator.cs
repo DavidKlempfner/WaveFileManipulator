@@ -21,6 +21,7 @@ Positions Sample Value Description
 Sample values are given above for a 16-bit stereo source.
 */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,26 +31,47 @@ namespace WaveFileManipulator
     public class Manipulator : IManipulator
     {
         public Metadata Metadata { get; private set; }
-        private readonly byte[] _forwardsWavFileStreamByteArray;
         private IReverser _reverser;
+        private byte[] _forwardsArrayWithOnlyHeaders;
+        private byte[] _forwardsArrayWithOnlyAudioData;
 
         public Manipulator(string filePath, IReverser reverser = null)
-        {
+        {            
             Validator.ValidateWavFileExtension(filePath);
-            _forwardsWavFileStreamByteArray = PopulateBytes(filePath);
-            Setup(reverser);
+            var forwardsWavFileStreamByteArray = PopulateBytes(filePath);
+            Setup(reverser, forwardsWavFileStreamByteArray);
         }
 
         public Manipulator(IEnumerable<byte> forwardsWavFileByteCollection, IReverser reverser = null)
         {
-            _forwardsWavFileStreamByteArray = forwardsWavFileByteCollection.ToArray();
-            Setup(reverser);
+            var forwardsWavFileStreamByteArray = forwardsWavFileByteCollection.ToArray();
+            Setup(reverser, forwardsWavFileStreamByteArray);
         }
 
-        private void Setup(IReverser reverser)
+        public byte[] Reverse()
+        {            
+            var reversedSamples = _reverser.Reverse(Metadata, _forwardsArrayWithOnlyHeaders, _forwardsArrayWithOnlyAudioData);            
+            return reversedSamples;
+        }
+
+        private byte[] CreateForwardsArrayWithOnlyHeaders(byte[] forwardsWavFileStreamByteArray, int startIndexOfDataChunk)
         {
-            Metadata = new Metadata(_forwardsWavFileStreamByteArray);
-            Validator.ValidateFileMinSize(_forwardsWavFileStreamByteArray, Metadata);
+            byte[] forwardsArrayWithOnlyHeaders = new byte[startIndexOfDataChunk];
+            Array.Copy(forwardsWavFileStreamByteArray, 0, forwardsArrayWithOnlyHeaders, 0, startIndexOfDataChunk);
+            return forwardsArrayWithOnlyHeaders;
+        }
+
+        private byte[] CreateForwardsArrayWithOnlyAudioData(byte[] forwardsWavFileStreamByteArray, int startIndexOfDataChunk)
+        {
+            byte[] forwardsArrayWithOnlyAudioData = new byte[forwardsWavFileStreamByteArray.Length - startIndexOfDataChunk];
+            Array.Copy(forwardsWavFileStreamByteArray, startIndexOfDataChunk, forwardsArrayWithOnlyAudioData, 0, forwardsWavFileStreamByteArray.Length - startIndexOfDataChunk);
+            return forwardsArrayWithOnlyAudioData;
+        }
+
+        private void Setup(IReverser reverser, byte[] forwardsWavFileStreamByteArray)
+        {            
+            Metadata = new Metadata(forwardsWavFileStreamByteArray);
+            Validator.ValidateFileMinSize(forwardsWavFileStreamByteArray, Metadata);
             if (reverser == null)
             {
                 _reverser = new Reverser();
@@ -58,6 +80,9 @@ namespace WaveFileManipulator
             {
                 _reverser = reverser;
             }
+
+            _forwardsArrayWithOnlyHeaders = CreateForwardsArrayWithOnlyHeaders(forwardsWavFileStreamByteArray, Metadata.DataStartIndex);
+            _forwardsArrayWithOnlyAudioData = CreateForwardsArrayWithOnlyAudioData(forwardsWavFileStreamByteArray, Metadata.DataStartIndex);
         }
 
         private byte[] PopulateBytes(string filePath)
@@ -70,12 +95,6 @@ namespace WaveFileManipulator
             }
 
             return forwardsWavFileStreamByteArray;
-        }
-
-        public byte[] Reverse()
-        {            
-            var reversedSamples = _reverser.Reverse(Metadata, _forwardsWavFileStreamByteArray);
-            return reversedSamples;
-        }
+        }        
     }
 }
