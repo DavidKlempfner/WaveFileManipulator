@@ -19,6 +19,9 @@ The metadata model includes the following:
 * You can see the INFO tags and values in the Metadata.Info property
 * For more information about what these tags mean, see https://www.recordingblogs.com/wiki/list-chunk-of-a-wave-file
 
+## NuGet Package
+* This is available as a NuGet package: https://www.nuget.org/packages/WaveFileManipulator/
+
 ## Your Own Implementation
 Want to try a different array reversing algorithm?
 You can pass in your own implementation of IReverser into the Manipulator ctor.
