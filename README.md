@@ -1,5 +1,7 @@
 WaveFileManipulator is an open source .NET .wav file manipulation library written by [David Klempfner](https://medium.com/@DavidKlempfner)
 
+![WaveFileManipulator logo](Icon.jpg)
+
 ## Features
 * Reverse the audio
 * Get the metadata into a handy model
