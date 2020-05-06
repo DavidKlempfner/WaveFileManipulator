@@ -85,3 +85,29 @@ class Program
     }
 }
 ```
+* Get the expected value of a section
+```c#
+using WaveFileManipulator;
+public class Program
+{
+    static void Main(string[] args)
+    {
+        var filePath = @"C:\File.wav";
+        var manipulator = new Manipulator(filePath);
+        var expectedChunkIdValue = manipulator.Metadata.ChunkId.ExpectedValue; //ChunkId should be "RIFF".        
+    }
+}
+```
+* Find out if the value of a section is expected
+```c#
+using WaveFileManipulator;
+public class Program
+{
+    static void Main(string[] args)
+    {
+        var filePath = @"C:\File.wav";
+        var manipulator = new Manipulator(filePath);        
+        var isChunkIdRiff = manipulator.Metadata.ChunkId.IsValueExpected; 
+    }
+}
+```
