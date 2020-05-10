@@ -30,6 +30,7 @@ You can pass in your own implementation of IReverser into the Manipulator ctor.
 * Reverse the audio
 
 ```c#
+using System.IO;
 using WaveFileManipulator;
 
 class Program
